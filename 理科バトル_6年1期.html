@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>理科バトル 6年1期</title>
+<style>
+:root{
+  --bg:#0a1628;--panel:#0f2040;--panel2:#162d55;--border:#1e3d6b;
+  --teal:#00c8c8;--teal2:#009898;--amber:#ffb600;--red:#ff4444;
+  --green:#22dd88;--blue:#4488ff;--text:#d8eaf8;--text2:#6a8aaa;
+  --white:#f0f8ff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;padding:12px;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 20% 15%,rgba(0,200,200,.07),transparent 50%),
+             radial-gradient(ellipse at 80% 85%,rgba(68,136,255,.06),transparent 50%)}
+
+.wrap{width:100%;max-width:680px;position:relative;z-index:1}
+
+/* ── HEADER ── */
+.header{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:12px}
+.header h1{font-size:18px;font-weight:700;color:var(--teal);letter-spacing:.05em}
+.header .sub{font-size:11px;color:var(--text2);margin-top:2px}
+.home-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text2);
+  padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;transition:all .2s}
+.home-btn:hover{color:var(--text);border-color:var(--teal)}
+
+/* ── START SCREEN ── */
+#start{padding:4px 0}
+.stage-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stage-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:16px 14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.stage-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stage-card.s1::before{background:linear-gradient(90deg,#22dd88,#00c8c8)}
+.stage-card.s2::before{background:linear-gradient(90deg,#4488ff,#22dd88)}
+.stage-card.s3::before{background:linear-gradient(90deg,#ffb600,#ff6644)}
+.stage-card.s4::before{background:linear-gradient(90deg,#cc44ff,#4488ff)}
+.stage-card.s5::before{background:linear-gradient(90deg,#ff4444,#cc44ff)}
+.stage-card.sw::before{background:linear-gradient(90deg,#ffb600,#ff4444)}
+.stage-card:hover{border-color:var(--teal);transform:translateY(-2px)}
+.stage-card .tag{font-size:10px;color:var(--text2);margin-bottom:4px}
+.stage-card .title{font-size:14px;font-weight:700;color:var(--white);line-height:1.3}
+.stage-card .sub2{font-size:11px;color:var(--text2);margin-top:4px}
+.stage-card .prog{font-size:11px;margin-top:8px;display:flex;align-items:center;gap:6px}
+.stage-card .prog-bar{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.stage-card .prog-fill{height:100%;background:var(--teal);border-radius:2px;transition:width .5s}
+.stage-card .stars{font-size:13px;margin-top:6px}
+
+.weak-btn{width:100%;background:rgba(255,68,68,.12);border:1px solid rgba(255,68,68,.4);
+  color:#ff8888;padding:12px;border-radius:12px;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .2s;margin-bottom:10px;display:flex;align-items:center;
+  justify-content:center;gap:8px}
+.weak-btn:hover{background:rgba(255,68,68,.2)}
+.weak-btn.hidden{display:none}
+
+.stats-bar{display:flex;gap:8px;margin-bottom:12px}
+.stat-pill{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:8px;
+  padding:8px;text-align:center;font-size:11px;color:var(--text2)}
+.stat-pill strong{display:block;font-size:18px;font-weight:700;color:var(--teal)}
+
+/* ── BATTLE SCREEN ── */
+#battle{display:none}
+.battle-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;
+  background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px 14px}
+.battle-title{font-size:13px;font-weight:600;color:var(--teal);flex:1}
+.q-counter{font-size:12px;color:var(--text2);white-space:nowrap}
+
+.enemy-area{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:14px;margin-bottom:12px;text-align:center;position:relative;overflow:hidden}
+.enemy-name{font-size:14px;font-weight:700;color:var(--amber);margin-bottom:8px}
+.enemy-face{font-size:52px;margin:8px 0;transition:transform .1s}
+.enemy-face.shake{animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.hp-wrap{display:flex;align-items:center;gap:8px;margin-top:8px}
+.hp-label{font-size:11px;color:var(--text2);white-space:nowrap}
+.hp-bar{flex:1;height:10px;background:rgba(255,255,255,.1);border-radius:5px;overflow:hidden}
+.hp-fill{height:100%;background:linear-gradient(90deg,#ff4444,#ff8844);border-radius:5px;transition:width .4s}
+.hp-text{font-size:11px;color:var(--text2);white-space:nowrap}
+
+.q-box{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;margin-bottom:10px}
+.q-meta{font-size:10px;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.q-meta .badge{background:var(--panel2);border-radius:4px;padding:2px 6px}
+.q-text{font-size:15px;line-height:1.6;color:var(--white);font-weight:600}
+
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.choice{background:var(--panel);border:1.5px solid var(--border);border-radius:10px;
+  padding:11px 12px;font-size:13px;cursor:pointer;transition:all .2s;line-height:1.4;
+  text-align:left;color:var(--text)}
+.choice:hover:not(.disabled){border-color:var(--teal);background:var(--panel2);color:var(--white)}
+.choice.correct{border-color:var(--green)!important;background:rgba(34,221,136,.15)!important;color:var(--green)!important}
+.choice.wrong{border-color:var(--red)!important;background:rgba(255,68,68,.15)!important;color:var(--red)!important}
+.choice.disabled{cursor:default;opacity:.7}
+
+.result-msg{text-align:center;font-size:15px;font-weight:700;padding:10px;
+  border-radius:10px;margin-bottom:10px;opacity:0;transition:opacity .3s}
+.result-msg.show{opacity:1}
+.result-msg.ok{background:rgba(34,221,136,.15);color:var(--green)}
+.result-msg.ng{background:rgba(255,68,68,.15);color:var(--red)}
+
+.explain-box{background:var(--panel2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;font-size:12px;line-height:1.7;color:var(--text);margin-bottom:10px;
+  display:none}
+.explain-box.show{display:block}
+.explain-box strong{color:var(--amber)}
+
+.next-btn{width:100%;background:var(--teal2);color:var(--bg);border:none;border-radius:10px;
+  padding:13px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:none}
+.next-btn:hover{background:var(--teal)}
+.next-btn.show{display:block}
+
+/* ── CLEAR SCREEN ── */
+#clear{display:none;padding:20px 0;text-align:center}
+.clear-emoji{font-size:64px;margin-bottom:12px}
+.clear-title{font-size:22px;font-weight:700;color:var(--teal);margin-bottom:6px}
+.clear-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
+.score-big{font-size:48px;font-weight:700;color:var(--amber);margin:8px 0}
+.score-label{font-size:12px;color:var(--text2)}
+.clear-btns{display:flex;flex-direction:column;gap:8px;margin-top:20px}
+.clear-btn{padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.clear-btn.primary{background:var(--teal2);color:var(--bg)}
+.clear-btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+.clear-btn:hover{opacity:.85}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div>
+      <div class="h1">🔬 理科バトル</div>
+      <div class="sub">6年1期 生物と環境・水溶液</div>
+    </div>
+    <button class="home-btn" id="homeBtn" onclick="goHome()" style="display:none">🏠 ホーム</button>
+  </div>
+
+  <!-- START -->
+  <div id="start">
+    <div class="stats-bar">
+      <div class="stat-pill"><strong id="totalMastered">0</strong>習得</div>
+      <div class="stat-pill"><strong id="totalQ">0</strong>全問題</div>
+      <div class="stat-pill"><strong id="totalWeak">0</strong>弱点</div>
+    </div>
+    <button class="weak-btn hidden" id="weakBtn" onclick="startWeak()">⚔️ 弱点集中モード（<span id="weakCount">0</span>問）</button>
+    <div class="stage-grid" id="stageGrid"></div>
+  </div>
+
+  <!-- BATTLE -->
+  <div id="battle">
+    <div class="battle-header">
+      <div class="battle-title" id="battleTitle"></div>
+      <div class="q-counter" id="qCounter"></div>
+    </div>
+    <div class="enemy-area">
+      <div class="enemy-name" id="enemyName"></div>
+      <div class="enemy-face" id="enemyFace"></div>
+      <div class="hp-wrap">
+        <div class="hp-label">HP</div>
+        <div class="hp-bar"><div class="hp-fill" id="hpFill" style="width:100%"></div></div>
+        <div class="hp-text" id="hpText"></div>
+      </div>
+    </div>
+    <div class="q-box">
+      <div class="q-meta"><span class="badge" id="qWeek"></span><span id="qType"></span></div>
+      <div class="q-text" id="qText"></div>
+    </div>
+    <div class="choices" id="choices"></div>
+    <div class="result-msg" id="resultMsg"></div>
+    <div class="explain-box" id="explainBox"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQ()">つぎへ →</button>
+  </div>
+
+  <!-- CLEAR -->
+  <div id="clear">
+    <div class="clear-emoji" id="clearEmoji"></div>
+    <div class="clear-title" id="clearTitle"></div>
+    <div class="clear-sub" id="clearSub"></div>
+    <div class="score-label">正解数</div>
+    <div class="score-big" id="scoreBig"></div>
+    <div class="score-label" id="scoreLabel2"></div>
+    <div class="clear-btns">
+      <button class="clear-btn primary" onclick="goHome()">🏠 ホームへ</button>
+      <button class="clear-btn secondary" id="retryBtn" onclick="retryStage()">🔄 もう一度</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// 問題バンク
+// ================================================================
+const QDB = [
+  // ════ 2月1週：生物と環境① ════
+  {id:'s1_01',stage:'s1',week:'2月1週',topic:'植物・光',
+   q:'陽生植物（陽樹）はどれですか？',
+   a:'マツ・クリ・クヌギ・ナラ',
+   opts:['シイ・カシ・ブナ','マツ・クリ・クヌギ・ナラ','ヤツデ・アオキ・アジサイ','シダ・コケ・ヤブラン'],
+   ex:'陽樹は成長するのに<strong>強い光</strong>を必要とする樹木。マツ・クリ・クヌギ・ナラなどが代表。陰樹はシイ・カシ・ブナ・スギ・ヒノキ。'},
+  {id:'s1_02',stage:'s1',week:'2月1週',topic:'植物・光',
+   q:'次のうち「陰生植物（陰樹）」はどれですか？',
+   a:'シイ・カシ・スギ',
+   opts:['マツ・クヌギ・ナラ','アサガオ・ヒマワリ','シイ・カシ・スギ','ナズナ・エンドウ'],
+   ex:'<strong>陰樹</strong>は比かく的弱い光でも成長できる植物。シイ・カシ・ブナ・スギ・ヒノキが代表。'},
+  {id:'s1_03',stage:'s1',week:'2月1週',topic:'植物・草',
+   q:'「一年草」の特徴はどれですか？',
+   a:'春に芽生え、夏から秋に開花し、冬は種子でこす',
+   opts:['秋に芽生え、翌年の春〜夏に開花する','春に芽生え、夏から秋に開花し、冬は種子でこす','秋から冬に地上部が枯れ、春にまた生える','何年も開花をくり返す'],
+   ex:'<strong>一年草</strong>：春に芽生え→夏〜秋に開花→種子を残す→冬は種子で越す。アサガオ・ヒマワリ・エノコログサなど。'},
+  {id:'s1_04',stage:'s1',week:'2月1週',topic:'植物・草',
+   q:'「越年草」の例として正しいものはどれですか？',
+   a:'ナズナ・エンドウ・アブラナ',
+   opts:['アサガオ・ヒマワリ','スズキ・ヨモギ・ユリ','ナズナ・エンドウ・アブラナ','ヤブラン・シュンラン'],
+   ex:'<strong>越年草</strong>は秋に芽生え、翌年の春〜夏に開花して種子を残し、冬までに枯れる。ナズナ・エンドウ・アブラナ・ヒメジョオンなど。'},
+  {id:'s1_05',stage:'s1',week:'2月1週',topic:'森林',
+   q:'「高木」の特徴はどれですか？',
+   a:'まっすぐな太い幹をもち、8m以上に成長する',
+   opts:['幹がなく枝分かれし、3mくらいにしかならない','陰生植物で森林内の水分を保つ','まっすぐな太い幹をもち、8m以上に成長する','森林のまわりを囲むように生える陽生植物'],
+   ex:'<strong>高木</strong>はまっすぐで太い幹をもち、8m以上になる。低木は幹がなく枝分かれして3mくらい。'},
+  {id:'s1_06',stage:'s1',week:'2月1週',topic:'森林',
+   q:'森林のつくりで「下草」はどのような役割をしていますか？',
+   a:'陰生植物で、森林内の水分を保つ',
+   opts:['強い光で光合成をおこなう陽生植物','8m以上に成長して森の上層を形成','陰生植物で、森林内の水分を保つ','森林のまわりを乾燥から守る'],
+   ex:'<strong>下草</strong>は陰生植物で、森林内の水分を保つはたらきをしている。'},
+  {id:'s1_07',stage:'s1',week:'2月1週',topic:'森林',
+   q:'「落葉樹」の森林が秋から春にかけて明るくなる理由はどれですか？',
+   a:'葉が落葉するため、光が届きやすくなるから',
+   opts:['葉が落葉するため、光が届きやすくなるから','光合成の量が増えるから','常緑樹が減るから','木の高さが低くなるから'],
+   ex:'ミズナラなどの<strong>落葉樹</strong>の森林は秋〜春先に葉が落ちるので、光が差し込んで明るくなる。常緑樹の森林は明るさの変化が小さい。'},
+  {id:'s1_08',stage:'s1',week:'2月1週',topic:'食物連鎖',
+   q:'「食物連鎖」とはどのようなつながりですか？',
+   a:'生物が食べる・食べられるという関係のつながり',
+   opts:['生物が共同して生活するつながり','生物が食べる・食べられるという関係のつながり','生物の炭素をとりこむつながり','生物が養分をつくるつながり'],
+   ex:'<strong>食物連鎖</strong>は生物が食べる・食べられるという関係のつながり。食物連鎖によって複雑な網の目のようにつながっている。'},
+  {id:'s1_09',stage:'s1',week:'2月1週',topic:'食物連鎖',
+   q:'「生産者」とはどのような生物ですか？',
+   a:'光合成によって養分をつくりだす植物',
+   opts:['ほかの生物を食べる動物','死がいやふんを分解する細菌類','光合成によって養分をつくりだす植物','寄生して生活する生物'],
+   ex:'<strong>生産者</strong>は光合成によって自ら養分をつくりだす植物のこと。動物は生産者にはなれない。'},
+  {id:'s1_10',stage:'s1',week:'2月1週',topic:'食物連鎖',
+   q:'「分解者」に当てはまるものはどれですか？',
+   a:'細菌類やカビ・キノコなどの菌類',
+   opts:['イネ・クサ・ヤブラン','ミジンコ・ゾウリムシ','細菌類やカビ・キノコなどの菌類','サギ・タカなどの肉食動物'],
+   ex:'<strong>分解者</strong>は落ち葉・死がい・動物のふんなどを分解して肥料に変える。細菌類やカビ・キノコなどの菌類がこれにあたる。'},
+  {id:'s1_11',stage:'s1',week:'2月1週',topic:'物質の循環',
+   q:'炭素の循環について、植物が空気中からとりこむものはどれですか？',
+   a:'二酸化炭素',
+   opts:['酸素','水素','二酸化炭素','ちっ素'],
+   ex:'植物は<strong>光合成</strong>で空気中の<strong>二酸化炭素</strong>から炭素をとりこんで養分をつくる。これが炭素の循環のスタート。'},
+  {id:'s1_12',stage:'s1',week:'2月1週',topic:'物質の循環',
+   q:'ちっ素の循環で、植物が根からとりこむものはどれですか？',
+   a:'ちっ素（窒素）をふくんだ肥料',
+   opts:['二酸化炭素','酸素','炭素をふくんだ養分','ちっ素（窒素）をふくんだ肥料'],
+   ex:'分解者が落ち葉やふんを分解して<strong>ちっ素（肥料）</strong>を放出→植物が根からとりこむ、という循環が成り立っている。'},
+  {id:'s1_13',stage:'s1',week:'2月1週',topic:'共生・寄生',
+   q:'「寄生」の説明として正しいのはどれですか？',
+   a:'生物が他の生きている生物を栄養分として生活すること',
+   opts:['異なる生物が共同して生活し、たがいに利益を得ること','生物が他の生きている生物を栄養分として生活すること','食物連鎖によって生物がつながること','分解者が養分を分解すること'],
+   ex:'<strong>寄生</strong>は、ある生物が他の生きている生物（宿主）を栄養分として生活すること。アオムシコマユバチの幼虫がアオムシに寄生するのが例。'},
+  {id:'s1_14',stage:'s1',week:'2月1週',topic:'森林',
+   q:'「極相（極相林）」とはどのような状態ですか？',
+   a:'森林が最終的に安定した状態（陰樹の森林）',
+   opts:['最初に裸地にコケが生えた状態','陽樹が生え始めた状態','草原の状態','森林が最終的に安定した状態（陰樹の森林）'],
+   ex:'裸地→コケ→一年草→多年草→陽樹→陽樹＋陰樹の幼木→陰樹（<strong>極相</strong>）という流れで森林ができる。'},
+  {id:'s1_15',stage:'s1',week:'2月1週',topic:'食物連鎖',
+   q:'食物連鎖で個体数のつりあいが保たれているとき、草食動物が何らかの理由で増えたら？',
+   a:'植物が減り、肉食動物が増える',
+   opts:['植物が増え、肉食動物が減る','植物が減り、肉食動物が増える','何も変わらない','すべての生物が増える'],
+   ex:'草食動物が増える→えさの植物が<strong>減る</strong>・肉食動物が<strong>増える</strong>→草食動物が減る→もとに戻る、という循環でつりあいが保たれる。'},
+
+  // ════ 2月2週：生物と環境② ════
+  {id:'s2_01',stage:'s2',week:'2月2週',topic:'外来種',
+   q:'「帰化生物（外来種）」の植物の例として正しいのはどれですか？',
+   a:'セイヨウタンポポ',
+   opts:['カントウタンポポ','ニジマス','セイヨウタンポポ','ブナ'],
+   ex:'外国から持ちこまれて日本に適応した生物を<strong>外来種（帰化生物）</strong>という。セイヨウタンポポは植物の外来種。カントウタンポポは在来種。'},
+  {id:'s2_02',stage:'s2',week:'2月2週',topic:'外来種',
+   q:'魚類の外来種として正しいのはどれですか？',
+   a:'ブラックバス・ブルーギル',
+   opts:['フナ・メダカ','ニジマス・ヒキガエル（ウシガエル）','ブラックバス・ブルーギル','コイ・タナゴ'],
+   ex:'<strong>ブラックバス・ブルーギル</strong>は魚類の外来種。天敵がいなくて爆発的に増え、食物連鎖のつりあいを壊す。'},
+  {id:'s2_03',stage:'s2',week:'2月2週',topic:'地球温暖化',
+   q:'地球温暖化の主な原因はどれですか？',
+   a:'二酸化炭素などの温室効果ガスの増加',
+   opts:['フロンガスによるオゾン層の破壊','酸性雨による森林の破壊','二酸化炭素などの温室効果ガスの増加','水質の悪化（赤潮・青潮）'],
+   ex:'石油・石炭などの化石燃料の大量消費によって<strong>二酸化炭素</strong>などの温室効果ガスが増加→地球全体の気温が上昇する<strong>地球温暖化</strong>。'},
+  {id:'s2_04',stage:'s2',week:'2月2週',topic:'酸性雨',
+   q:'酸性雨の原因となる物質はどれですか？',
+   a:'硫黄酸化物（SOx）・窒素酸化物（NOx）',
+   opts:['二酸化炭素・メタン','フロンガス・水素','硫黄酸化物（SOx）・窒素酸化物（NOx）','ダイオキシン・PCB'],
+   ex:'工場や車の排気ガス中の<strong>硫黄酸化物（SOx）・窒素酸化物（NOx）</strong>が空中で雲や雨にとけこんだものが酸性雨。'},
+  {id:'s2_05',stage:'s2',week:'2月2週',topic:'環境問題',
+   q:'「オゾン層」を破壊する物質はどれですか？',
+   a:'フロンガス',
+   opts:['二酸化炭素','硫黄酸化物（SOx）','ダイオキシン','フロンガス'],
+   ex:'<strong>フロンガス</strong>はオゾン層を破壊する。オゾン層が破壊されると、有害な紫外線が地表に増加する。フロンの寿命は約100年。'},
+  {id:'s2_06',stage:'s2',week:'2月2週',topic:'環境問題',
+   q:'バイオエタノールの特徴として正しいのはどれですか？',
+   a:'植物を発酵させてつくるアルコール系燃料で、CO₂増加にならない',
+   opts:['石炭から取り出す燃料で排気ガスがない','植物を発酵させてつくるアルコール系燃料で、CO₂増加にならない','水素と酸素の反応で電気をつくる自動車','太陽光エネルギーを電気に変える装置'],
+   ex:'サトウキビ等を発酵→アルコールを取り出す。元々植物がCO₂を吸収しているので、燃焼しても<strong>地球上のCO₂を増やさない</strong>（カーボンニュートラル）。'},
+  {id:'s2_07',stage:'s2',week:'2月2週',topic:'気象現象',
+   q:'「エルニーニョ現象」とはどのような現象ですか？',
+   a:'南米ペルー沖の海面温度が異常に上昇する現象',
+   opts:['南米ペルー沖の海面温度が異常に低くなる現象','南米ペルー沖の海面温度が異常に上昇する現象','日本近海の海面温度が上昇する現象','都市部に気温上昇が集中する現象'],
+   ex:'<strong>エルニーニョ現象</strong>は南米ペルー沖（赤道付近）の海面温度が1回/数年のペースで異常上昇。日本では冷夏・暖冬になる傾向。逆はラニーニャ現象。'},
+  {id:'s2_08',stage:'s2',week:'2月2週',topic:'気象現象',
+   q:'「ヒートアイランド現象」の原因として正しくないものはどれですか？',
+   a:'川や池などの水辺が増えること',
+   opts:['緑地の減少','工場・自動車・ビルからの排熱','コンクリートやアスファルトの蓄熱','川や池などの水辺が増えること'],
+   ex:'ヒートアイランドの原因は緑地の減少・排熱・コンクリートなどの<strong>蓄熱</strong>。対策は<strong>屋上緑化・水辺の保護</strong>など。水辺が増えることは対策になる。'},
+  {id:'s2_09',stage:'s2',week:'2月2週',topic:'気象現象',
+   q:'「猛暑日」の定義はどれですか？',
+   a:'最高気温が35℃を超える日',
+   opts:['最高気温が30℃を超える日','最高気温が35℃を超える日','最低気温が25℃以上の日','最高気温が38℃を超える日'],
+   ex:'真夏日は30℃超・<strong>猛暑日は35℃超</strong>。夜間の最低気温が25℃以上の日を熱帯夜という。'},
+  {id:'s2_10',stage:'s2',week:'2月2週',topic:'生物個体数',
+   q:'海が危険性が大きい魚類が産卵数が多い理由はどれですか？',
+   a:'死ぬ割合が高いため、たくさん産卵しないと子孫を残せないから',
+   opts:['雄の数が少ないため','水温が低いため','死ぬ割合が高いため、たくさん産卵しないと子孫を残せないから','川に比べて食物連鎖が単純だから'],
+   ex:'自然界では死ぬ個体数が多いほど<strong>産卵数が多く</strong>なる。マイワシは5万〜8万個、マンボウは約3億個の卵を産む。'},
+  {id:'s2_11',stage:'s2',week:'2月2週',topic:'生物個体数',
+   q:'鳥類が哺乳類よりも産卵数が少ない主な理由はどれですか？',
+   a:'親が世話をするため、子の生存率が高いから',
+   opts:['食べる量が少ないから','天敵が少ないから','体が小さいから','親が世話をするため、子の生存率が高いから'],
+   ex:'鳥類は<strong>親が世話</strong>をするため生存率が高い→産卵数が少なくて済む。哺乳類も同様に産卵（子）数が少ない。'},
+  {id:'s2_12',stage:'s2',week:'2月2週',topic:'生物個体数',
+   q:'「赤潮・青潮」の直接の原因はどれですか？',
+   a:'水中の小さな生物の異常発生',
+   opts:['塩分濃度の変化','水温の急激な低下','有害化学物質の流入','水中の小さな生物の異常発生'],
+   ex:'生活排水にふくまれるリン・ちっ素が増えると水中の小さな生物が異常発生→<strong>赤潮・青潮</strong>→酸素不足で魚が死ぬ。'},
+
+  // ════ 2月3週：水溶液① ════
+  {id:'s3_01',stage:'s3',week:'2月3週',topic:'水溶液の性質',
+   q:'においをかぐときの正しい方法はどれですか？',
+   a:'手であおぐようにしてかぐ',
+   opts:['鼻を近づけて深く吸いこむ','手であおぐようにしてかぐ','容器をふってにおいを出す','少量を舌でなめる'],
+   ex:'においのある水溶液を調べるときは、直接鼻を近づけず<strong>手であおぐ</strong>ようにしてかぐ。手ざわりは指に1〜2滴つけて軽くすりあわせて調べる。'},
+  {id:'s3_02',stage:'s3',week:'2月3週',topic:'水溶液の種類',
+   q:'「気体がとけた水溶液」を蒸発させると？',
+   a:'何も残らない',
+   opts:['白い固体が残る','透明な液体が残る','何も残らない','黒い固体が残る'],
+   ex:'気体がとけた水溶液（炭酸水・塩酸・アンモニア水など）を蒸発させると、<strong>何も残らない</strong>。気体も水と一緒に蒸発するから。'},
+  {id:'s3_03',stage:'s3',week:'2月3週',topic:'水溶液の種類',
+   q:'「炭酸水」にとけている物質はどれですか？',
+   a:'二酸化炭素',
+   opts:['酸素','水素','塩化水素','二酸化炭素'],
+   ex:'炭酸水は<strong>二酸化炭素</strong>がとけた水溶液。炭酸水に石灰水を通すと白くにごる。'},
+  {id:'s3_04',stage:'s3',week:'2月3週',topic:'水溶液の種類',
+   q:'「塩酸」にとけている物質はどれですか？',
+   a:'塩化水素（気体）',
+   opts:['食塩（固体）','水酸化ナトリウム（固体）','塩化水素（気体）','硫酸（液体）'],
+   ex:'<strong>塩酸</strong>は塩化水素という気体がとけた水溶液。鼻をさすようなにおい（刺激臭）がある。'},
+  {id:'s3_05',stage:'s3',week:'2月3週',topic:'水溶液の種類',
+   q:'「アンモニア水」の特徴として正しいのはどれですか？',
+   a:'鼻をさすようなにおいがし、空気よりも軽い',
+   opts:['においがなく、水より重い','鼻をさすようなにおいがし、空気よりも軽い','甘いにおいがし、中性を示す','手ざわりがぬるぬるし、においがない'],
+   ex:'<strong>アンモニア水</strong>はアンモニアがとけた水溶液。鼻をさすようなにおい（刺激臭）。アンモニアは空気より<strong>軽く</strong>、水に非常によくとける気体。'},
+  {id:'s3_06',stage:'s3',week:'2月3週',topic:'溶解度',
+   q:'「溶解度」とはどのような量ですか？',
+   a:'一定量の水にとける物質の最大の量（限度量）',
+   opts:['水溶液全体の重さ','とけ残りの量','一定量の水にとける物質の最大の量（限度量）','水溶液の体積'],
+   ex:'<strong>溶解度</strong>は一定の水にとける物質の<strong>限度量</strong>（最大の量）。100gの水に何gとけるかで示すことが多い。'},
+  {id:'s3_07',stage:'s3',week:'2月3週',topic:'溶解度',
+   q:'水温と固体の溶解度の関係について正しいのはどれですか？',
+   a:'水温が高いほど多くとける（石灰水は例外で逆）',
+   opts:['水温が高いほど多くとける（石灰水は例外で逆）','水温が低いほど多くとける','水温は溶解度に関係ない','すべての固体が同じ量とける'],
+   ex:'ほとんどの固体は水温が<strong>高いほど多くとける</strong>。ただし<strong>石灰水（水酸化カルシウム）</strong>は例外で、水温が高いほどとける量が少なくなる。'},
+  {id:'s3_08',stage:'s3',week:'2月3週',topic:'溶解度',
+   q:'水温と気体の溶解度の関係について正しいのはどれですか？',
+   a:'水温が低いほどよくとける',
+   opts:['水温が高いほどよくとける','水温が低いほどよくとける','水温は気体の溶解度に関係ない','圧力だけが関係する'],
+   ex:'気体は<strong>水温が低いほどよくとける</strong>。これが炭酸飲料を冷やしておく理由。固体とは逆の傾向。'},
+  {id:'s3_09',stage:'s3',week:'2月3週',topic:'水溶液の種類',
+   q:'「液体がとけた水溶液」を蒸発させると？',
+   a:'何も残らない（液体も蒸発するから）',
+   opts:['固体が残る','色のついた水が残る','何も残らない（液体も蒸発するから）','白い粉が残る'],
+   ex:'アルコール水溶液・さく酸水溶液など<strong>液体がとけた水溶液</strong>を蒸発させると、液体も蒸発するので<strong>何も残らない</strong>。'},
+  {id:'s3_10',stage:'s3',week:'2月3週',topic:'水溶液の種類',
+   q:'「過酸化水素水」に二酸化マンガンを加えると何が発生しますか？',
+   a:'酸素',
+   opts:['水素','二酸化炭素','酸素','ちっ素'],
+   ex:'<strong>過酸化水素水</strong>（オキシドール）に二酸化マンガンを触媒として加えると、<strong>酸素</strong>が発生する。'},
+  {id:'s3_11',stage:'s3',week:'2月3週',topic:'水溶液の性質',
+   q:'固体がとけた水溶液を熱して水を蒸発させると？',
+   a:'とけていた固体が残る',
+   opts:['何も残らない','液体が残る','気体が残る','とけていた固体が残る'],
+   ex:'食塩水・砂糖水など<strong>固体がとけた水溶液</strong>は蒸発させると、固体は蒸発しないので<strong>とけていた固体が残る</strong>。'},
+  {id:'s3_12',stage:'s3',week:'2月3週',topic:'水溶液の性質',
+   q:'青色の水溶液はどれですか？',
+   a:'硫酸銅水溶液',
+   opts:['食塩水','アンモニア水','硫酸銅水溶液','石灰水'],
+   ex:'水溶液はふつう無色だが、<strong>硫酸銅水溶液は青色</strong>、塩化コバルト水溶液はピンク色、過マンガン酸カリウム水溶液は赤紫色など、有色のものもある。'},
+  {id:'s3_13',stage:'s3',week:'2月3週',topic:'溶解度',
+   q:'水溶液のこさはどこも同じですか？',
+   a:'はい、水溶液はどこもこさが同じ（均一）',
+   opts:['底の方が濃い','上の方が濃い','時間がたつと分かれる','はい、水溶液はどこもこさが同じ（均一）'],
+   ex:'<strong>水溶液</strong>はとけた物質が水の中に均一に散らばっているので、どこをとっても<strong>こさが同じ</strong>。時間がたっても変わらない。'},
+
+  // ════ 3月1週：水溶液② 中和 ════
+  {id:'s4_01',stage:'s4',week:'3月1週',topic:'中和',
+   q:'「中和」とはどのような反応ですか？',
+   a:'酸性とアルカリ性の水溶液を混ぜ合わせると、たがいの性質を打ち消し合う反応',
+   opts:['固体が水にとける反応','酸性とアルカリ性の水溶液を混ぜ合わせると、たがいの性質を打ち消し合う反応','水を加熱して蒸発させる反応','金属が水溶液にとける反応'],
+   ex:'<strong>中和</strong>は酸性＋アルカリ性→たがいの性質を打ち消し合う反応。完全中和でちょうど中性になる。'},
+  {id:'s4_02',stage:'s4',week:'3月1週',topic:'中和',
+   q:'中和反応で必ずできるものはどれですか？',
+   a:'塩（えん）と水',
+   opts:['水素と酸素','二酸化炭素と水','塩（えん）と水','アルコールと水'],
+   ex:'中和反応では必ず<strong>塩（えん）</strong>と<strong>水</strong>ができる。塩酸＋水酸化ナトリウム→食塩（塩化ナトリウム）＋水、が代表例。'},
+  {id:'s4_03',stage:'s4',week:'3月1週',topic:'中和',
+   q:'塩酸と水酸化ナトリウム水溶液の中和でできる「塩」はどれですか？',
+   a:'食塩（塩化ナトリウム）',
+   opts:['炭酸カルシウム','硫酸バリウム','食塩（塩化ナトリウム）','塩化アンモニウム'],
+   ex:'塩酸（HCl）＋水酸化ナトリウム（NaOH）→<strong>食塩（塩化ナトリウム）</strong>＋水。立方体の形をした固体。'},
+  {id:'s4_04',stage:'s4',week:'3月1週',topic:'中和',
+   q:'BTB液：塩酸（酸性）に加えると何色ですか？',
+   a:'黄色',
+   opts:['青色','緑色','赤色','黄色'],
+   ex:'BTB液の色：酸性→<strong>黄色</strong>、中性→緑色、アルカリ性→青色。「酸黄・中緑・アルカリ青」と覚えよう。'},
+  {id:'s4_05',stage:'s4',week:'3月1週',topic:'中和',
+   q:'BTB液：水酸化ナトリウム（アルカリ性）では何色ですか？',
+   a:'青色',
+   opts:['赤色','緑色','青色','黄色'],
+   ex:'BTB液：アルカリ性→<strong>青色</strong>。中性→緑色、酸性→黄色。'},
+  {id:'s4_06',stage:'s4',week:'3月1週',topic:'中和',
+   q:'塩酸に水酸化ナトリウムを少しずつ加えていくと、BTB液の色はどう変化しますか？',
+   a:'黄色 → 緑色 → 青色',
+   opts:['青色 → 緑色 → 黄色','緑色 → 黄色 → 青色','黄色 → 緑色 → 青色','変化しない'],
+   ex:'塩酸（酸性・黄）に水酸化ナトリウムを加えると、酸性が弱まり→中性（完全中和・緑）→アルカリ性（青）へと変化。'},
+  {id:'s4_07',stage:'s4',week:'3月1週',topic:'中和',
+   q:'酸性の強い川に石灰をまく目的はどれですか？',
+   a:'石灰（アルカリ性）で川の酸性を中和するため',
+   opts:['川を汚染するため','魚を増やすため','石灰（アルカリ性）で川の酸性を中和するため','川の色をきれいにするため'],
+   ex:'酸性の川に<strong>石灰（アルカリ性）</strong>をまくと中和反応が起き、酸性を弱めることができる。身近な中和の例。'},
+  {id:'s4_08',stage:'s4',week:'3月1週',topic:'中和',
+   q:'完全中和後さらに水酸化ナトリウムを加えて蒸発させると何が残りますか？',
+   a:'食塩と水酸化ナトリウム',
+   opts:['食塩のみ','水酸化ナトリウムのみ','塩化水素','食塩と水酸化ナトリウム'],
+   ex:'完全中和時→食塩のみ。さらにNaOHを加えると→食塩＋<strong>水酸化ナトリウム</strong>が残る（NaOH自体は固体なので蒸発しない）。'},
+  {id:'s4_09',stage:'s4',week:'3月1週',topic:'中和',
+   q:'炭酸水と石灰水の中和でできる「塩」はどれですか？',
+   a:'炭酸カルシウム（水に難溶）',
+   opts:['食塩（塩化ナトリウム）','塩化アンモニウム','硫酸バリウム','炭酸カルシウム（水に難溶）'],
+   ex:'炭酸水（酸）＋石灰水（アルカリ）→<strong>炭酸カルシウム</strong>＋水。炭酸カルシウムは水にとけにくいので白くにごる。'},
+  {id:'s4_10',stage:'s4',week:'3月1週',topic:'中和',
+   q:'酸性の胃液による胃の痛みを和らげるには？',
+   a:'アルカリ性の胃腸薬を飲む',
+   opts:['酸性の薬を飲む','中性の水を大量に飲む','アルカリ性の胃腸薬を飲む','高温の液体を飲む'],
+   ex:'酸性の胃液による痛みを<strong>アルカリ性の胃腸薬（炭酸水素ナトリウムなど）</strong>で中和して和らげる。日常生活での中和の例。'},
+  {id:'s4_11',stage:'s4',week:'3月1週',topic:'中和',
+   q:'虫さされにアンモニア水をつける理由はどれですか？',
+   a:'虫の毒（酸性）をアンモニア水（アルカリ性）で中和するため',
+   opts:['殺菌するため','冷やすため','虫の毒（酸性）をアンモニア水（アルカリ性）で中和するため','血を止めるため'],
+   ex:'ハチや蟻の毒は<strong>酸性</strong>なので、<strong>アルカリ性</strong>のアンモニア水を塗ると中和されて痛みが和らぐ。'},
+  {id:'s4_12',stage:'s4',week:'3月1週',topic:'中和',
+   q:'水酸化バリウム水溶液と硫酸の中和でできる「塩」はどれですか？',
+   a:'硫酸バリウム（水にとけない）',
+   opts:['食塩（塩化ナトリウム）','炭酸カルシウム','硫酸バリウム（水にとけない）','塩化バリウム'],
+   ex:'水酸化バリウム＋硫酸→<strong>硫酸バリウム</strong>＋水。硫酸バリウムも水にとけにくい白い沈殿をつくる。'},
+
+  // ════ 3月2週：水溶液③ 金属と水溶液 ════
+  {id:'s5_01',stage:'s5',week:'3月2週',topic:'金属の性質',
+   q:'金属の共通の性質として正しくないものはどれですか？',
+   a:'すべての金属は常温で固体である',
+   opts:['みがくと光を反射する（金属光沢）','熱や電気を伝える','細くのばせる（延性）・薄くひろげられる（展性）','すべての金属は常温で固体である'],
+   ex:'金属の性質：光沢・熱・電気を伝える・延性・展性など。ただし<strong>水銀は常温で液体</strong>（例外）なので「すべて固体」は誤り。'},
+  {id:'s5_02',stage:'s5',week:'3月2週',topic:'金属と水溶液',
+   q:'塩酸にとける金属はどれですか？',
+   a:'アルミニウム・亜鉛・鉄',
+   opts:['アルミニウム・亜鉛・鉄','金・銀・銅','銅・鉄・金','銀・白金・チタン'],
+   ex:'塩酸にとける金属：<strong>アルミニウム・亜鉛（あえん）・鉄</strong>。<strong>銅は塩酸にとけない</strong>。とけると水素が発生する。'},
+  {id:'s5_03',stage:'s5',week:'3月2週',topic:'金属と水溶液',
+   q:'水酸化ナトリウム水溶液にとける金属はどれですか？',
+   a:'アルミニウム・亜鉛',
+   opts:['鉄・銅','金・銀','アルミニウム・亜鉛','アルミニウム・銅'],
+   ex:'水酸化ナトリウム水溶液にとける金属は<strong>アルミニウム・亜鉛</strong>（加熱が必要な場合もある）。鉄・銅はとけない。'},
+  {id:'s5_04',stage:'s5',week:'3月2週',topic:'金属と水溶液',
+   q:'金属が水溶液にとけるときに発生する気体はどれですか？',
+   a:'水素',
+   opts:['酸素','二酸化炭素','水素','アンモニア'],
+   ex:'アルミニウム・亜鉛・鉄などが塩酸（または水酸化ナトリウム）にとけるときに<strong>水素（H₂）</strong>が発生する。'},
+  {id:'s5_05',stage:'s5',week:'3月2週',topic:'水素',
+   q:'水素を燃やすと何ができますか？',
+   a:'水（水蒸気）',
+   opts:['二酸化炭素','酸素','水（水蒸気）','塩化水素'],
+   ex:'水素（H₂）＋酸素（O₂）→<strong>水（H₂O）</strong>。水素は気体の中で最も軽く、水にとけにくい。音を立てて激しく燃える。'},
+  {id:'s5_06',stage:'s5',week:'3月2週',topic:'金属と水溶液',
+   q:'塩酸にアルミニウムをとかした後の水溶液を蒸発させると何が残りますか？',
+   a:'塩化アルミニウム（白い固体）',
+   opts:['アルミニウム（もとの金属）','食塩（塩化ナトリウム）','塩化アルミニウム（白い固体）','酸化アルミニウム'],
+   ex:'塩酸にアルミニウムをとかした液を蒸発すると<strong>塩化アルミニウム</strong>という白い固体が残る。アルミニウムとは別の新しい物質。'},
+  {id:'s5_07',stage:'s5',week:'3月2週',topic:'金属と水溶液',
+   q:'水酸化ナトリウム水溶液にアルミニウムをとかした後の水溶液を蒸発させると？',
+   a:'アルミン酸ナトリウム（白い固体）が残る',
+   opts:['アルミニウム（もとの金属）に戻る','食塩（塩化ナトリウム）が残る','アルミン酸ナトリウム（白い固体）が残る','何も残らない'],
+   ex:'NaOHにAlをとかした液を蒸発すると<strong>アルミン酸ナトリウム</strong>という白い固体が残る。アルミニウムとは別の物質に変化している。'},
+  {id:'s5_08',stage:'s5',week:'3月2週',topic:'金属の性質',
+   q:'金属を速くとかす方法として正しいのはどれですか？',
+   a:'水溶液の温度を高くし、金属を細かく砕く',
+   opts:['水溶液を冷やし、金属を大きいままにする','水溶液の温度を高くし、金属を細かく砕く','水溶液の量を減らし、金属を大きいままにする','水溶液を薄め、金属を細かく砕く'],
+   ex:'金属を速くとかすには①<strong>水溶液の温度を高くする</strong>②<strong>水溶液のこさを濃くする</strong>③<strong>金属を細かく砕く</strong>（表面積を大きくする）。'},
+  {id:'s5_09',stage:'s5',week:'3月2週',topic:'金属の性質',
+   q:'金属の色について正しいのはどれですか？',
+   a:'ほとんどの金属は銀白色か灰色（金と銅は例外）',
+   opts:['すべての金属は銀白色','すべての金属は黒っぽい','ほとんどの金属は銀白色か灰色（金と銅は例外）','すべての金属はつやがない'],
+   ex:'ほとんどの金属は<strong>銀白色か灰色</strong>。例外として<strong>金は黄金色・銅は赤銅色</strong>。'},
+  {id:'s5_10',stage:'s5',week:'3月2週',topic:'金属と水溶液',
+   q:'塩酸にアルミニウムをとかした後の水溶液に、さらにアルミニウムを加えると？',
+   a:'水素は発生しない（もとの塩酸ではないから）',
+   opts:['激しく水素が発生する','ゆっくり水素が発生する','水素は発生しない（もとの塩酸ではないから）','酸素が発生する'],
+   ex:'塩酸にAlをとかした後の水溶液は<strong>塩化アルミニウム水溶液</strong>（もはや塩酸ではない）なので、Alを加えても水素は発生しない。'},
+  {id:'s5_11',stage:'s5',week:'3月2週',topic:'金属の性質',
+   q:'「展性」とはどのような金属の性質ですか？',
+   a:'薄くひろげられる（板状にできる）性質',
+   opts:['細く引きのばせる性質','薄くひろげられる（板状にできる）性質','熱をよく伝える性質','磁石に引きつけられる性質'],
+   ex:'延性は<strong>細く引きのばせる</strong>性質、展性は<strong>薄くひろげられる</strong>（箔にできる）性質。金箔・アルミニウム箔が例。'},
+  {id:'s5_12',stage:'s5',week:'3月2週',topic:'金属と水溶液',
+   q:'鉄を塩酸にとかした後の水溶液を蒸発させると残るのはどれですか？',
+   a:'塩化鉄（鉄とは別の物質）',
+   opts:['鉄（もとの金属）','食塩','塩化鉄（鉄とは別の物質）','酸化鉄'],
+   ex:'鉄＋塩酸→<strong>塩化鉄</strong>＋水素。塩化鉄は鉄とは別の物質。金属が水溶液にとけると、もとの金属とは<strong>別の物質</strong>に変化する。'},
+];
+
+// ────────────────────────────────────────────
+// ステージ設定
+// ────────────────────────────────────────────
+const STAGES = [
+  {id:'s1',cls:'s1',name:'2月1週',sub:'生物と環境①',topic:'植物・森林・食物連鎖・物質循環',
+   boss:'🌿 緑の支配者',bossName:'グリーンキング'},
+  {id:'s2',cls:'s2',name:'2月2週',sub:'生物と環境②',topic:'環境問題・地球温暖化・生物個体数',
+   boss:'🌍 環境の魔神',bossName:'エコロードｘ'},
+  {id:'s3',cls:'s3',name:'2月3週',sub:'水溶液①',topic:'水溶液の性質・種類・溶解度',
+   boss:'🧪 水溶液の魔王',bossName:'アクアデーモン'},
+  {id:'s4',cls:'s4',name:'3月1週',sub:'水溶液②',topic:'中和反応・BTB液・塩',
+   boss:'⚗️ 中和の大魔神',bossName:'ニュートラル'},
+  {id:'s5',cls:'s5',name:'3月2週',sub:'水溶液③',topic:'金属と水溶液・水素・溶解',
+   boss:'🔩 金属の鬼将軍',bossName:'メタルジェネラル'},
+];
+
+// ────────────────────────────────────────────
+// ローカルストレージ
+// ────────────────────────────────────────────
+const LS_KEY_M = 'rika1ki_mastered';
+const LS_KEY_I = 'rika1ki_incorrect';
+
+function loadLS(){
+  try{
+    return {
+      mastered: JSON.parse(localStorage.getItem(LS_KEY_M)||'[]'),
+      incorrect: JSON.parse(localStorage.getItem(LS_KEY_I)||'[]'),
+    };
+  }catch(e){return {mastered:[],incorrect:[]};}
+}
+function saveLS(m,i){
+  localStorage.setItem(LS_KEY_M, JSON.stringify(m));
+  localStorage.setItem(LS_KEY_I, JSON.stringify(i));
+}
+
+// ────────────────────────────────────────────
+// 状態
+// ────────────────────────────────────────────
+let state = {
+  mode: 'home', // 'home'|'stage'|'weak'
+  stageId: null,
+  questions: [],
+  qIndex: 0,
+  score: 0,
+  answered: false,
+  mastered: [],
+  incorrect: [],
+};
+
+// ────────────────────────────────────────────
+// 初期化
+// ────────────────────────────────────────────
+function init(){
+  const ls = loadLS();
+  state.mastered = ls.mastered;
+  state.incorrect = ls.incorrect;
+  renderHome();
+}
+
+function shuffleArr(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+// ────────────────────────────────────────────
+// ホーム描画
+// ────────────────────────────────────────────
+function renderHome(){
+  document.getElementById('start').style.display='block';
+  document.getElementById('battle').style.display='none';
+  document.getElementById('clear').style.display='none';
+  document.getElementById('homeBtn').style.display='none';
+
+  const ls = loadLS();
+  state.mastered = ls.mastered;
+  state.incorrect = ls.incorrect;
+
+  // stats
+  document.getElementById('totalQ').textContent = QDB.length;
+  document.getElementById('totalMastered').textContent = state.mastered.length;
+  document.getElementById('totalWeak').textContent = state.incorrect.length;
+
+  // weak btn
+  const weakBtn = document.getElementById('weakBtn');
+  if(state.incorrect.length>0){
+    weakBtn.classList.remove('hidden');
+    document.getElementById('weakCount').textContent = state.incorrect.length;
+  }else{
+    weakBtn.classList.add('hidden');
+  }
+
+  // stages
+  const grid = document.getElementById('stageGrid');
+  grid.innerHTML='';
+  STAGES.forEach(st=>{
+    const qs = QDB.filter(q=>q.stage===st.id);
+    const masteredCount = qs.filter(q=>state.mastered.includes(q.id)).length;
+    const pct = qs.length>0 ? Math.round(masteredCount/qs.length*100) : 0;
+    const stars = pct===100?'⭐⭐⭐':pct>=60?'⭐⭐':pct>=30?'⭐':'';
+    const card = document.createElement('div');
+    card.className=`stage-card ${st.cls}`;
+    card.innerHTML=`
+      <div class="tag">${st.name}</div>
+      <div class="title">${st.sub}</div>
+      <div class="sub2">${st.topic}</div>
+      <div class="prog">
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+        <span style="font-size:11px;color:var(--text2)">${masteredCount}/${qs.length}</span>
+      </div>
+      ${stars?`<div class="stars">${stars}</div>`:''}
+    `;
+    card.onclick=()=>startStage(st.id);
+    grid.appendChild(card);
+  });
+}
+
+// ────────────────────────────────────────────
+// ステージ開始
+// ────────────────────────────────────────────
+function startStage(stageId){
+  const qs = QDB.filter(q=>q.stage===stageId);
+  // 習得済みを後ろに、未習得・弱点を前に
+  const weak = qs.filter(q=>state.incorrect.includes(q.id));
+  const unlearned = qs.filter(q=>!state.mastered.includes(q.id)&&!state.incorrect.includes(q.id));
+  const mastered = qs.filter(q=>state.mastered.includes(q.id)&&!state.incorrect.includes(q.id));
+  const pool = [...shuffleArr(weak),...shuffleArr(unlearned),...shuffleArr(mastered)];
+
+  const st = STAGES.find(s=>s.id===stageId);
+  launchBattle(pool, st.name+' '+st.sub, st.bossName, st.boss, stageId);
+}
+
+function startWeak(){
+  const weak = QDB.filter(q=>state.incorrect.includes(q.id));
+  launchBattle(shuffleArr(weak),'弱点集中モード','⚔️ 全弱点','👹 ラスボス', 'weak');
+}
+
+function launchBattle(pool, title, bossName, bossFace, stageId){
+  state.mode='battle';
+  state.stageId=stageId;
+  state.questions=pool;
+  state.qIndex=0;
+  state.score=0;
+
+  document.getElementById('start').style.display='none';
+  document.getElementById('battle').style.display='block';
+  document.getElementById('clear').style.display='none';
+  document.getElementById('homeBtn').style.display='block';
+  document.getElementById('battleTitle').textContent=title;
+  document.getElementById('enemyName').textContent=bossName;
+  document.getElementById('enemyFace').textContent=bossFace;
+  updateHP();
+  showQ();
+}
+
+// ────────────────────────────────────────────
+// 問題表示
+// ────────────────────────────────────────────
+function updateHP(){
+  const total=state.questions.length;
+  const remaining=total-state.qIndex;
+  const pct=Math.round(remaining/total*100);
+  document.getElementById('hpFill').style.width=pct+'%';
+  document.getElementById('hpText').textContent=remaining+'/'+total;
+  document.getElementById('qCounter').textContent=(state.qIndex+1)+'/'+total;
+}
+
+function showQ(){
+  if(state.qIndex>=state.questions.length){showClear();return;}
+  const q=state.questions[state.qIndex];
+  state.answered=false;
+
+  document.getElementById('qWeek').textContent=q.week;
+  document.getElementById('qType').textContent=q.topic;
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('resultMsg').className='result-msg';
+  document.getElementById('resultMsg').textContent='';
+  document.getElementById('explainBox').className='explain-box';
+  document.getElementById('nextBtn').className='next-btn';
+
+  // choices
+  const opts=shuffleArr(q.opts);
+  const choicesEl=document.getElementById('choices');
+  choicesEl.innerHTML='';
+  opts.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='choice';
+    btn.textContent=opt;
+    btn.onclick=()=>answerQ(btn,opt,q);
+    choicesEl.appendChild(btn);
+  });
+
+  updateHP();
+}
+
+// ────────────────────────────────────────────
+// 解答処理
+// ────────────────────────────────────────────
+function answerQ(btn, chosen, q){
+  if(state.answered)return;
+  state.answered=true;
+
+  // disable all
+  document.querySelectorAll('.choice').forEach(b=>b.classList.add('disabled'));
+
+  const correct = chosen===q.a;
+  if(correct){
+    btn.classList.add('correct');
+    state.score++;
+    // 正解：masteredに追加、incorrectから削除
+    if(!state.mastered.includes(q.id)) state.mastered.push(q.id);
+    state.incorrect=state.incorrect.filter(id=>id!==q.id);
+    const rm=document.getElementById('resultMsg');
+    rm.className='result-msg show ok';
+    rm.textContent='⭐ 正解！';
+    // shake enemy
+    const face=document.getElementById('enemyFace');
+    face.classList.add('shake');
+    setTimeout(()=>face.classList.remove('shake'),300);
+  }else{
+    btn.classList.add('wrong');
+    // 正解ボタンをハイライト
+    document.querySelectorAll('.choice').forEach(b=>{
+      if(b.textContent===q.a)b.classList.add('correct');
+    });
+    // incorrectに追加
+    if(!state.incorrect.includes(q.id)) state.incorrect.push(q.id);
+    // masteredから削除
+    state.mastered=state.mastered.filter(id=>id!==q.id);
+    const rm=document.getElementById('resultMsg');
+    rm.className='result-msg show ng';
+    rm.textContent='✗ 不正解…';
+  }
+
+  saveLS(state.mastered, state.incorrect);
+
+  // 解説
+  if(q.ex){
+    const eb=document.getElementById('explainBox');
+    eb.innerHTML='<strong>解説</strong>：'+q.ex;
+    eb.className='explain-box show';
+  }
+
+  document.getElementById('nextBtn').className='next-btn show';
+}
+
+function nextQ(){
+  state.qIndex++;
+  showQ();
+}
+
+// ────────────────────────────────────────────
+// クリア画面
+// ────────────────────────────────────────────
+function showClear(){
+  const total=state.questions.length;
+  const pct=Math.round(state.score/total*100);
+
+  document.getElementById('battle').style.display='none';
+  document.getElementById('clear').style.display='block';
+
+  let emoji='😤',title='もう少し！',sub='弱点をもう一度やろう！';
+  if(pct>=90){emoji='🏆';title='完璧！';sub='全問ほぼ正解！次のステージへ！';}
+  else if(pct>=70){emoji='⭐';title='合格！';sub='もう少しで完璧だ！';}
+  else if(pct>=50){emoji='💪';title='まあまあ！';sub='弱点集中モードで補強しよう。';}
+
+  document.getElementById('clearEmoji').textContent=emoji;
+  document.getElementById('clearTitle').textContent=title;
+  document.getElementById('clearSub').textContent=sub;
+  document.getElementById('scoreBig').textContent=state.score;
+  document.getElementById('scoreLabel2').textContent='/ '+total+' 問（'+pct+'%）';
+}
+
+function retryStage(){
+  if(state.stageId==='weak') startWeak();
+  else if(state.stageId) startStage(state.stageId);
+}
+
+function goHome(){
+  if(state.mode==='battle'){
+    if(!confirm('ホームへ戻りますか？'))return;
+  }
+  state.mode='home';
+  renderHome();
+}
+
+// ────────────────────────────────────────────
+// スタート
+// ────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

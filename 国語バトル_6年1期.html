@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>国語バトル 6年1期</title>
+<style>
+:root{
+  --bg:#12100e;--panel:#1e1a16;--panel2:#2a2318;--border:#3d3228;
+  --gold:#d4a017;--gold2:#f0c040;--red:#e05050;--green:#4eb86a;
+  --blue:#5588ee;--purple:#aa55ee;--text:#ede0cc;--text2:#8a7a60;
+  --white:#fff8ee;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Mincho ProN','Yu Mincho','Georgia',serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;padding:12px;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 30% 10%,rgba(212,160,23,.06),transparent 50%),
+             radial-gradient(ellipse at 70% 90%,rgba(170,85,238,.04),transparent 50%)}
+
+.wrap{width:100%;max-width:680px;position:relative;z-index:1}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;background:var(--panel);
+  border:1px solid var(--border);border-radius:12px;margin-bottom:12px;
+  position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--gold),var(--purple),var(--gold))}
+.header h1{font-size:18px;font-weight:700;color:var(--gold);letter-spacing:.1em}
+.header .sub{font-size:11px;color:var(--text2);margin-top:2px;font-family:sans-serif}
+.home-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text2);
+  padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;transition:all .2s;
+  font-family:sans-serif}
+.home-btn:hover{color:var(--text);border-color:var(--gold)}
+
+/* START */
+#start{padding:4px 0}
+.stats-bar{display:flex;gap:8px;margin-bottom:12px}
+.stat-pill{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:8px;
+  padding:8px;text-align:center;font-size:11px;color:var(--text2);font-family:sans-serif}
+.stat-pill strong{display:block;font-size:18px;font-weight:700;color:var(--gold);
+  font-family:sans-serif}
+
+.stage-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stage-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:16px 14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.stage-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stage-card.k1::before{background:linear-gradient(90deg,#4eb86a,#88ddaa)}
+.stage-card.k2::before{background:linear-gradient(90deg,#5588ee,#88aaff)}
+.stage-card.k3::before{background:linear-gradient(90deg,#d4a017,#f0c040)}
+.stage-card.k4::before{background:linear-gradient(90deg,#aa55ee,#dd88ff)}
+.stage-card.k5::before{background:linear-gradient(90deg,#e05050,#ff8844)}
+.stage-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.stage-card .tag{font-size:10px;color:var(--text2);margin-bottom:4px;font-family:sans-serif}
+.stage-card .title{font-size:14px;font-weight:700;color:var(--white);line-height:1.3}
+.stage-card .sub2{font-size:11px;color:var(--text2);margin-top:4px;font-family:sans-serif}
+.stage-card .prog{font-size:11px;margin-top:8px;display:flex;align-items:center;gap:6px;
+  font-family:sans-serif}
+.stage-card .prog-bar{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.stage-card .prog-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .5s}
+.stage-card .stars{font-size:13px;margin-top:6px}
+
+.weak-btn{width:100%;background:rgba(224,80,80,.12);border:1px solid rgba(224,80,80,.4);
+  color:#ee8888;padding:12px;border-radius:12px;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .2s;margin-bottom:10px;display:flex;align-items:center;
+  justify-content:center;gap:8px;font-family:sans-serif}
+.weak-btn:hover{background:rgba(224,80,80,.2)}
+.weak-btn.hidden{display:none}
+
+/* BATTLE */
+#battle{display:none}
+.battle-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;
+  background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px 14px}
+.battle-title{font-size:13px;font-weight:700;color:var(--gold);flex:1;letter-spacing:.05em}
+.q-counter{font-size:12px;color:var(--text2);white-space:nowrap;font-family:sans-serif}
+
+.enemy-area{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:14px;margin-bottom:12px;text-align:center;position:relative;overflow:hidden}
+.enemy-name{font-size:14px;font-weight:700;color:var(--gold2);margin-bottom:8px;letter-spacing:.08em}
+.enemy-face{font-size:52px;margin:8px 0;transition:transform .1s;line-height:1.2}
+.enemy-face.shake{animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.hp-wrap{display:flex;align-items:center;gap:8px;margin-top:8px}
+.hp-label{font-size:11px;color:var(--text2);white-space:nowrap;font-family:sans-serif}
+.hp-bar{flex:1;height:10px;background:rgba(255,255,255,.1);border-radius:5px;overflow:hidden}
+.hp-fill{height:100%;background:linear-gradient(90deg,#cc3333,#ff8844);border-radius:5px;transition:width .4s}
+.hp-text{font-size:11px;color:var(--text2);white-space:nowrap;font-family:sans-serif}
+
+.q-box{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;margin-bottom:10px}
+.q-meta{font-size:10px;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;
+  gap:6px;font-family:sans-serif}
+.q-meta .badge{background:var(--panel2);border-radius:4px;padding:2px 6px}
+.q-type-label{font-size:10px;padding:2px 8px;border-radius:10px;font-family:sans-serif}
+.q-type-label.t1{background:rgba(78,184,106,.2);color:#4eb86a}
+.q-type-label.t2{background:rgba(85,136,238,.2);color:#88aaff}
+.q-type-label.t3{background:rgba(212,160,23,.2);color:#d4a017}
+.q-type-label.t4{background:rgba(170,85,238,.2);color:#cc88ff}
+.q-type-label.t5{background:rgba(224,80,80,.2);color:#ff8866}
+.q-text{font-size:15px;line-height:1.7;color:var(--white);font-weight:600;
+  white-space:pre-wrap}
+
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.choices.single{grid-template-columns:1fr}
+.choice{background:var(--panel);border:1.5px solid var(--border);border-radius:10px;
+  padding:11px 12px;font-size:13px;cursor:pointer;transition:all .2s;line-height:1.5;
+  text-align:left;color:var(--text);font-family:sans-serif}
+.choice:hover:not(.disabled){border-color:var(--gold);background:var(--panel2);color:var(--white)}
+.choice.correct{border-color:var(--green)!important;background:rgba(78,184,106,.15)!important;color:var(--green)!important}
+.choice.wrong{border-color:var(--red)!important;background:rgba(224,80,80,.15)!important;color:var(--red)!important}
+.choice.disabled{cursor:default;opacity:.7}
+
+.result-msg{text-align:center;font-size:15px;font-weight:700;padding:10px;
+  border-radius:10px;margin-bottom:10px;opacity:0;transition:opacity .3s;
+  font-family:sans-serif}
+.result-msg.show{opacity:1}
+.result-msg.ok{background:rgba(78,184,106,.15);color:var(--green)}
+.result-msg.ng{background:rgba(224,80,80,.15);color:var(--red)}
+
+.explain-box{background:var(--panel2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;font-size:12px;line-height:1.8;color:var(--text);margin-bottom:10px;
+  display:none;font-family:sans-serif}
+.explain-box.show{display:block}
+.explain-box strong{color:var(--gold2)}
+
+.next-btn{width:100%;background:#7a5c1a;color:var(--gold2);border:1px solid var(--gold);
+  border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;
+  transition:all .2s;display:none;font-family:sans-serif;letter-spacing:.05em}
+.next-btn:hover{background:var(--gold);color:var(--bg)}
+.next-btn.show{display:block}
+
+/* CLEAR */
+#clear{display:none;padding:20px 0;text-align:center}
+.clear-emoji{font-size:64px;margin-bottom:12px}
+.clear-title{font-size:22px;font-weight:700;color:var(--gold);margin-bottom:6px;letter-spacing:.1em}
+.clear-sub{font-size:13px;color:var(--text2);margin-bottom:20px;font-family:sans-serif}
+.score-big{font-size:48px;font-weight:700;color:var(--gold2);margin:8px 0;font-family:sans-serif}
+.score-label{font-size:12px;color:var(--text2);font-family:sans-serif}
+.clear-btns{display:flex;flex-direction:column;gap:8px;margin-top:20px}
+.clear-btn{padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;
+  border:none;transition:all .2s;font-family:sans-serif}
+.clear-btn.primary{background:#7a5c1a;color:var(--gold2);border:1px solid var(--gold)}
+.clear-btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+.clear-btn:hover{opacity:.85}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div>
+      <div class="h1" style="font-size:18px;font-weight:700;color:var(--gold);letter-spacing:.1em">📖 国語バトル</div>
+      <div class="sub">6年1期 言語・語彙・熟語</div>
+    </div>
+    <button class="home-btn" id="homeBtn" onclick="goHome()" style="display:none">🏠 ホーム</button>
+  </div>
+
+  <div id="start">
+    <div class="stats-bar">
+      <div class="stat-pill"><strong id="totalMastered">0</strong>習得</div>
+      <div class="stat-pill"><strong id="totalQ">0</strong>全問題</div>
+      <div class="stat-pill"><strong id="totalWeak">0</strong>弱点</div>
+    </div>
+    <button class="weak-btn hidden" id="weakBtn" onclick="startWeak()">⚔️ 弱点集中モード（<span id="weakCount">0</span>問）</button>
+    <div class="stage-grid" id="stageGrid"></div>
+  </div>
+
+  <div id="battle">
+    <div class="battle-header">
+      <div class="battle-title" id="battleTitle"></div>
+      <div class="q-counter" id="qCounter"></div>
+    </div>
+    <div class="enemy-area">
+      <div class="enemy-name" id="enemyName"></div>
+      <div class="enemy-face" id="enemyFace"></div>
+      <div class="hp-wrap">
+        <div class="hp-label">HP</div>
+        <div class="hp-bar"><div class="hp-fill" id="hpFill" style="width:100%"></div></div>
+        <div class="hp-text" id="hpText"></div>
+      </div>
+    </div>
+    <div class="q-box">
+      <div class="q-meta">
+        <span class="badge" id="qWeek"></span>
+        <span class="q-type-label" id="qTypeLabel"></span>
+      </div>
+      <div class="q-text" id="qText"></div>
+    </div>
+    <div class="choices" id="choices"></div>
+    <div class="result-msg" id="resultMsg"></div>
+    <div class="explain-box" id="explainBox"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQ()">つぎへ →</button>
+  </div>
+
+  <div id="clear">
+    <div class="clear-emoji" id="clearEmoji"></div>
+    <div class="clear-title" id="clearTitle"></div>
+    <div class="clear-sub" id="clearSub"></div>
+    <div class="score-label">正解数</div>
+    <div class="score-big" id="scoreBig"></div>
+    <div class="score-label" id="scoreLabel2"></div>
+    <div class="clear-btns">
+      <button class="clear-btn primary" onclick="goHome()">🏠 ホームへ</button>
+      <button class="clear-btn secondary" id="retryBtn" onclick="retryStage()">🔄 もう一度</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// 問題データベース
+// ================================================================
+const QDB = [
+
+// ════════════════════════════════════════
+// 2月1週：かなと漢字
+// ════════════════════════════════════════
+{id:'k1_01',stage:'k1',week:'2月1週',topic:'かなづかい',tclass:'t1',
+ q:'かなづかいが正しいものはどれですか？',
+ a:'おおきい',
+ opts:['おうきい','おおきい','おうおかみ','とうい'],
+ ex:'「オー」の長音はふつう「う」を使うが、<strong>おおきい・おおかみ・こおり</strong>などは「お」を重ねて書く例外。'},
+
+{id:'k1_02',stage:'k1',week:'2月1週',topic:'かなづかい',tclass:'t1',
+ q:'かなづかいのまちがっているものはどれですか？',
+ a:'ちかずく',
+ opts:['ちかずく','はなぢ','みかづき','こづかい'],
+ ex:'「ちかづく（近づく）」は「つ」が濁って「づ」になる複合語ルールで<strong>ちかづく</strong>が正しい。「ちかずく」は誤り。'},
+
+{id:'k1_03',stage:'k1',week:'2月1週',topic:'かなづかい',tclass:'t1',
+ q:'次のうち、「ぢ・づ」を使うのが正しいものはどれですか？',
+ a:'みかづき',
+ opts:['じめん','いなずま','みかづき','すず'],
+ ex:'「みかづき（三日月）」は「みっか」の「か」が濁ったもの。同じ音が続く場合や複合語の場合は<strong>ぢ・づ</strong>を使う。'},
+
+{id:'k1_04',stage:'k1',week:'2月1週',topic:'送りがな',tclass:'t1',
+ q:'正しい送りがなはどれですか？\n「かなし（  ）できごと」',
+ a:'悲しい',
+ opts:['悲い','悲しい','悲しきい','悲かない'],
+ ex:'形容詞の送りがな：「〜しい」で終わるものは<strong>「し」から送る</strong>。「悲しい」の「しい」がすべて送りがな。'},
+
+{id:'k1_05',stage:'k1',week:'2月1週',topic:'送りがな',tclass:'t1',
+ q:'正しい送りがなはどれですか？\n「うけつけに申し（  ）む」',
+ a:'申し込む',
+ opts:['申し込む','申込む','申しこむ','申しこ（む）'],
+ ex:'複合動詞の送りがな：活用のある言葉は言い切りの形が<strong>ウ段音</strong>で終わるように送る。「込む」で完結。'},
+
+{id:'k1_06',stage:'k1',week:'2月1週',topic:'送りがな',tclass:'t1',
+ q:'「さいわいにも助かる」の正しい漢字＋送りがなは？',
+ a:'幸いにも',
+ opts:['幸いにも','幸にも','幸きにも','幸わいにも'],
+ ex:'「幸い」は名詞でもあるが形容動詞語幹。<strong>「い」まで送りがな</strong>をつけて「幸い」と書く。'},
+
+{id:'k1_07',stage:'k1',week:'2月1週',topic:'漢字の成り立ち',tclass:'t1',
+ q:'「象形文字」の説明として正しいのはどれですか？',
+ a:'目に見えるものの形をかたどってできた漢字（例：日・月・山）',
+ opts:['意味を表す部分と音を表す部分を組み合わせた漢字','形のない事柄を点や線で示した漢字','目に見えるものの形をかたどってできた漢字（例：日・月・山）','複数の漢字を組み合わせて新たな意味をもたせた漢字'],
+ ex:'<strong>象形</strong>は形をかたどる→日・月・山・川など。<strong>指事</strong>は点線で示す→一・上・中。<strong>会意</strong>は組み合わせ→男（田＋力）。<strong>形声</strong>は意味＋音→晴・花など（最多の約80%）。'},
+
+{id:'k1_08',stage:'k1',week:'2月1週',topic:'漢字の成り立ち',tclass:'t1',
+ q:'「男」「林」「休」はどの種類の漢字ですか？',
+ a:'会意文字',
+ opts:['象形文字','指事文字','会意文字','形声文字'],
+ ex:'<strong>会意文字</strong>：複数の漢字を音に関係なく組み合わせる。男＝田＋力、林＝木＋木、休＝人＋木。'},
+
+{id:'k1_09',stage:'k1',week:'2月1週',topic:'漢字の成り立ち',tclass:'t1',
+ q:'「晴・飯・花・想」はどの種類の漢字ですか？',
+ a:'形声文字',
+ opts:['象形文字','会意文字','指事文字','形声文字'],
+ ex:'<strong>形声文字</strong>は意味を表す部首＋音を表す部分の組み合わせ。漢字の約<strong>80%</strong>を占める最多の種類。'},
+
+{id:'k1_10',stage:'k1',week:'2月1週',topic:'漢字の成り立ち',tclass:'t1',
+ q:'「一・上・中」はどの種類の漢字ですか？',
+ a:'指事文字',
+ opts:['象形文字','指事文字','会意文字','形声文字'],
+ ex:'<strong>指事文字</strong>は形のない数・位置などを点や線で示した漢字。一・上・下・中・本・末などが代表例。'},
+
+{id:'k1_11',stage:'k1',week:'2月1週',topic:'部首名',tclass:'t1',
+ q:'「安」の部首名はどれですか？',
+ a:'うかんむり',
+ opts:['うかんむり','おんなへん','のぎへん','きへん'],
+ ex:'「安」は「宀（うかんむり）」＋「女」の会意文字。<strong>うかんむり（宀）</strong>が部首。'},
+
+{id:'k1_12',stage:'k1',week:'2月1週',topic:'部首名',tclass:'t1',
+ q:'「時」の部首名はどれですか？',
+ a:'ひへん',
+ opts:['にちへん','ひへん','てへん','ごんべん'],
+ ex:'「時」の部首は<strong>ひへん（日偏）</strong>。日・時・明・晴・暑など時間・光に関する漢字に多い。'},
+
+{id:'k1_13',stage:'k1',week:'2月1週',topic:'部首名',tclass:'t1',
+ q:'「国」の部首名はどれですか？',
+ a:'くにがまえ',
+ opts:['くにがまえ','もんがまえ','かくしがまえ','けいがまえ'],
+ ex:'「国」の部首は<strong>くにがまえ（囗）</strong>。囲・因・図・回・園なども同じ部首。'},
+
+{id:'k1_14',stage:'k1',week:'2月1週',topic:'部首名',tclass:'t1',
+ q:'「集」の部首名はどれですか？',
+ a:'ふるとり',
+ opts:['ふるとり','とりへん','たけかんむり','あめかんむり'],
+ ex:'「集」の部首は<strong>ふるとり（隹）</strong>。雀・雄・雌・難・雑なども同じ部首（鳥に関わる字が多い）。'},
+
+{id:'k1_15',stage:'k1',week:'2月1週',topic:'部首名',tclass:'t1',
+ q:'「海」の部首名はどれですか？',
+ a:'さんずい',
+ opts:['さんずい','にすい','みず','ゆうべ'],
+ ex:'「海」の部首は<strong>さんずい（氵）</strong>。水に関係する漢字（河・湖・波・泳・深など）はほぼさんずい。'},
+
+// ════════════════════════════════════════
+// 2月2週：同訓異字
+// ════════════════════════════════════════
+{id:'k2_01',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「室内が（あたたか）い」に使う漢字はどれですか？',
+ a:'暖かい',
+ opts:['暖かい','温かい','温まる','暖まる'],
+ ex:'<strong>暖かい</strong>＝気温・気候が心地よい（室内・気候）。<strong>温かい</strong>＝ものの温度が心地よい（料理・飲み物）。'},
+
+{id:'k2_02',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「努力が実を（うむ）」に使う漢字はどれですか？',
+ a:'生む',
+ opts:['産む','生む','膿む','成む'],
+ ex:'<strong>産む</strong>＝子を産む（動物・人間の出産）。<strong>生む</strong>＝新しく作り出す（成果を生む・利益を生む）。'},
+
+{id:'k2_03',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「先頭の走者を（おう）」に使う漢字はどれですか？',
+ a:'追う',
+ opts:['負う','追う','敗う','御う'],
+ ex:'<strong>負う</strong>＝背負う・責任を自分の身に受ける。<strong>追う</strong>＝後から進む・追いかける。'},
+
+{id:'k2_04',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「花束を（おくる）」に使う漢字はどれですか？',
+ a:'贈る',
+ opts:['送る','贈る','遅れる','後れる'],
+ ex:'<strong>送る</strong>＝物を届ける（小包を送る）。<strong>贈る</strong>＝人にプレゼントする（花束・贈り物）。'},
+
+{id:'k2_05',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「学級委員に（おす）」に使う漢字はどれですか？',
+ a:'推す',
+ opts:['押す','推す','抑す','欧す'],
+ ex:'<strong>押す</strong>＝力を加える（ボタンを押す）。<strong>推す</strong>＝ふさわしいとして他人にすすめる（委員に推す）。'},
+
+{id:'k2_06',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「私用で時間を（さく）」に使う漢字はどれですか？',
+ a:'割く',
+ opts:['裂く','割く','咲く','刻く'],
+ ex:'<strong>裂く</strong>＝切って二つに分ける（紙を裂く）。<strong>割く</strong>＝一部分を分けて別の用に当てる（時間を割く）。'},
+
+{id:'k2_07',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「悲しみに（たえる）」に使う漢字はどれですか？',
+ a:'耐える',
+ opts:['耐える','絶える','堪える','耐へる'],
+ ex:'<strong>耐える</strong>＝我慢する・持ちこたえる（苦しみに耐える）。<strong>絶える</strong>＝とぎれる・途中で切れる（連絡が絶える）。'},
+
+{id:'k2_08',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「身辺を（ととのえる）」に使う漢字はどれですか？',
+ a:'整える',
+ opts:['調える','整える','合える','統える'],
+ ex:'<strong>整える</strong>＝乱れのないきちんとした状態にする（身辺を整える）。<strong>調える</strong>＝必要なものをそろえる（味を調える）。'},
+
+{id:'k2_09',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「けがを（なおす）」に使う漢字はどれですか？',
+ a:'治す',
+ opts:['直す','治す','療す','固す'],
+ ex:'<strong>直す</strong>＝正しくする・修理する（機械を直す）。<strong>治す</strong>＝体の悪いところを治療する（病気・けがを治す）。'},
+
+{id:'k2_10',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「会社に（つとめる）」に使う漢字はどれですか？',
+ a:'勤める',
+ opts:['勤める','務める','努める','動める'],
+ ex:'<strong>勤める</strong>＝職場に行って働く（会社・学校に勤める）。<strong>務める</strong>＝役目を受け持つ（議長を務める）。<strong>努める</strong>＝努力する（完成に努める）。'},
+
+{id:'k2_11',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「山にのぼる（登山）」に使う漢字はどれですか？',
+ a:'登る',
+ opts:['上る','登る','昇る','乗る'],
+ ex:'<strong>登る</strong>＝努力して高いほうへ進む（山に登る）。<strong>昇る</strong>＝空の高いところに行く（太陽が昇る）。<strong>上る</strong>＝高いところへ移動する（坂を上る）。'},
+
+{id:'k2_12',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「試合に（やぶれる）」に使う漢字はどれですか？',
+ a:'敗れる',
+ opts:['破れる','敗れる','乱れる','敗られる'],
+ ex:'<strong>敗れる</strong>＝相手との勝負に負ける（試合に敗れる）。<strong>破れる</strong>＝形あるものが壊れる（紙が破れる）。'},
+
+{id:'k2_13',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「距離を（はかる）」に使う漢字はどれですか？',
+ a:'測る',
+ opts:['図る','計る','測る','量る'],
+ ex:'<strong>図る</strong>＝計画する。<strong>計る</strong>＝数える・時間を調べる。<strong>測る</strong>＝長さ・面積・距離を調べる。<strong>量る</strong>＝重さ・量を調べる。'},
+
+{id:'k2_14',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「国境を（こえる）」に使う漢字はどれですか？',
+ a:'越える',
+ opts:['越える','超える','跨える','渡える'],
+ ex:'<strong>越える</strong>＝物の上を通りすぎて向こう側へ行く（山・国境を越える）。<strong>超える</strong>＝ある数量や限界を上回る（定員を超える）。'},
+
+{id:'k2_15',stage:'k2',week:'2月2週',topic:'同訓異字',tclass:'t2',
+ q:'「洗濯物が（かわく）」に使う漢字はどれですか？',
+ a:'乾く',
+ opts:['乾く','渇く','涸く','干く'],
+ ex:'<strong>乾く</strong>＝水分がなくなる（洗濯物が乾く）。<strong>渇く</strong>＝のどがからからになる（のどが渇く）。'},
+
+// ════════════════════════════════════════
+// 2月3週：同音異義語
+// ════════════════════════════════════════
+{id:'k3_01',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「アンケートに（カイトウ）する」\nの正しい漢字はどれですか？',
+ a:'回答',
+ opts:['解答','回答','快刀','開討'],
+ ex:'<strong>回答</strong>＝質問・アンケートなどへの返事。<strong>解答</strong>＝問題（テストなど）に対する答え。'},
+
+{id:'k3_02',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「会の（カイシン）の出来」\nの正しい漢字はどれですか？',
+ a:'会心',
+ opts:['改心','会心','回心','壊心'],
+ ex:'<strong>会心</strong>＝心にかなった満足のいく状態（会心の一打・会心の出来）。<strong>改心</strong>＝悪い心を改めること。'},
+
+{id:'k3_03',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「春の人事（イドウ）」\nの正しい漢字はどれですか？',
+ a:'異動',
+ opts:['移動','異動','依動','意動'],
+ ex:'<strong>異動</strong>＝勤務先・部署が変わること（人事異動）。<strong>移動</strong>＝位置を変えること（机を移動する）。'},
+
+{id:'k3_04',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「意見に（サンセイ）する」\nの正しい漢字はどれですか？',
+ a:'賛成',
+ opts:['酸性','賛成','参政','三省'],
+ ex:'<strong>賛成</strong>＝意見を認めて支持すること。<strong>酸性</strong>＝酸の性質（理科用語）。<strong>参政</strong>＝政治に参加すること。'},
+
+{id:'k3_05',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「切手を（シュウシュウ）する」\nの正しい漢字はどれですか？',
+ a:'収集',
+ opts:['収集','収拾','習集','修集'],
+ ex:'<strong>収集</strong>＝物を集めること（切手を収集する）。<strong>収拾</strong>＝混乱・騒ぎを収めること（事態を収拾する）。'},
+
+{id:'k3_06',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「物事の（タイショウ）とする」\nの正しい漢字はどれですか？',
+ a:'対象',
+ opts:['対象','対照','対称','大将'],
+ ex:'<strong>対象</strong>＝目標・相手（研究の対象）。<strong>対照</strong>＝つき比べること（対照実験）。<strong>対称</strong>＝つりあうこと（左右対称）。'},
+
+{id:'k3_07',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「（ソウゾウ）力が豊かだ」\nの正しい漢字はどれですか？',
+ a:'想像',
+ opts:['想像','創造','相像','総造'],
+ ex:'<strong>想像</strong>＝頭の中で思い浮かべること。<strong>創造</strong>＝はじめて作り出すこと（神が世界を創造する）。'},
+
+{id:'k3_08',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「（ヒナン）場所に避ける」\nの正しい漢字はどれですか？',
+ a:'避難',
+ opts:['避難','非難','秘難','被難'],
+ ex:'<strong>避難</strong>＝災難を避けること（避難訓練）。<strong>非難</strong>＝責めとがめること（他人を非難する）。'},
+
+{id:'k3_09',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「（コウセイ）な判断をする」\nの正しい漢字はどれですか？',
+ a:'公正',
+ opts:['構成','校正','公正','後世'],
+ ex:'<strong>公正</strong>＝公平で正しいこと。<strong>構成</strong>＝組み立てること。<strong>校正</strong>＝文字の誤りを正すこと。<strong>後世</strong>＝今より後の時代。'},
+
+{id:'k3_10',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「（フキュウ）の名作」\nの正しい漢字はどれですか？',
+ a:'不朽',
+ opts:['普及','不朽','布給','不休'],
+ ex:'<strong>不朽</strong>＝いつまでも残ること（不朽の名作）。<strong>普及</strong>＝広く行き渡ること（スマートフォンの普及）。'},
+
+{id:'k3_11',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「（ホショウ）します」（品質に責任を持つ場合）\nの正しい漢字はどれですか？',
+ a:'保証',
+ opts:['保証','保障','補償','方正'],
+ ex:'<strong>保証</strong>＝うけあうこと（品質を保証する）。<strong>保障</strong>＝障害なく保つこと（権利を保障する）。<strong>補償</strong>＝つぐなうこと（損害を補償する）。'},
+
+{id:'k3_12',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「（カガク）の実験をする」（物質の成り立ちを研究する学問）\nの正しい漢字はどれですか？',
+ a:'化学',
+ opts:['科学','化学','歌楽','家学'],
+ ex:'<strong>化学</strong>＝物質の成り立ちなどを研究する学問。<strong>科学</strong>＝自然や人間の生活に関わる学問（自然科学・社会科学）。'},
+
+{id:'k3_13',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「目的を（ツイキュウ）する」\nの正しい漢字はどれですか？',
+ a:'追求',
+ opts:['追求','追及','追究','追給'],
+ ex:'<strong>追求</strong>＝目的のものを追い求める。<strong>追及</strong>＝物事をつきとめて調べる（責任を追及する）。<strong>追究</strong>＝原因を追いつめる（原因を追究する）。'},
+
+{id:'k3_14',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「（キョウソウ）で一位になる」（速さを争う）\nの正しい漢字はどれですか？',
+ a:'競走',
+ opts:['競争','競走','強壮','況争'],
+ ex:'<strong>競走</strong>＝速さを争うこと（徒競走）。<strong>競争</strong>＝勝敗や優劣などを争うこと（受験競争）。'},
+
+{id:'k3_15',stage:'k3',week:'2月3週',topic:'同音異義語',tclass:'t3',
+ q:'「（カイホウ）感がある」（解き放す意味）\nの正しい漢字はどれですか？',
+ a:'解放',
+ opts:['開放','解放','快放','壊放'],
+ ex:'<strong>解放</strong>＝解き放すこと（解放感・奴隷解放）。<strong>開放</strong>＝開け放すこと（校庭を一般に開放する）。'},
+
+// ════════════════════════════════════════
+// 3月1週：類義語・対義語
+// ════════════════════════════════════════
+{id:'k4_01',stage:'k4',week:'3月1週',topic:'類義語',tclass:'t4',
+ q:'「決心」の類義語はどれですか？',
+ a:'決意',
+ opts:['決意','決別','結末','公平'],
+ ex:'<strong>決意</strong>＝はっきりと決めること。「決心」とほぼ同じ意味の類義語（シノニム）。'},
+
+{id:'k4_02',stage:'k4',week:'3月1週',topic:'類義語',tclass:'t4',
+ q:'「都会」の類義語はどれですか？',
+ a:'都市',
+ opts:['田舎','都市','首都','地方'],
+ ex:'<strong>都市</strong>は「都会」とほぼ同じ意味の類義語。対義語は「田舎・農村」など。'},
+
+{id:'k4_03',stage:'k4',week:'3月1週',topic:'類義語',tclass:'t4',
+ q:'「信頼」の類義語はどれですか？',
+ a:'信用',
+ opts:['信用','信念','依存','忠告'],
+ ex:'<strong>信用</strong>は「信頼」とほぼ同じ意味の類義語。「あの人は信用できる」「信頼関係を築く」のように使う。'},
+
+{id:'k4_04',stage:'k4',week:'3月1週',topic:'類義語',tclass:'t4',
+ q:'「一生」の類義語はどれですか？',
+ a:'終生',
+ opts:['終生','永遠','生命','命令'],
+ ex:'<strong>終生</strong>（しゅうせい）＝一生・生涯ずっと。「終生の友」「終生愛し続ける」などと使う。'},
+
+{id:'k4_05',stage:'k4',week:'3月1週',topic:'対義語',tclass:'t4',
+ q:'「積極」の対義語はどれですか？',
+ a:'消極',
+ opts:['消極','継続','活発','受動'],
+ ex:'<strong>積極</strong>⇔<strong>消極</strong>。積極的（前向きに働きかける）⇔消極的（引っ込み思案）。'},
+
+{id:'k4_06',stage:'k4',week:'3月1週',topic:'対義語',tclass:'t4',
+ q:'「肯定」の対義語はどれですか？',
+ a:'否定',
+ opts:['否定','反応','疑問','反論'],
+ ex:'<strong>肯定</strong>（こうてい）⇔<strong>否定</strong>（ひてい）。そうだと認める⇔そうでないと打ち消す。'},
+
+{id:'k4_07',stage:'k4',week:'3月1週',topic:'対義語',tclass:'t4',
+ q:'「需要」の対義語はどれですか？',
+ a:'供給',
+ opts:['供給','生産','消費','輸出'],
+ ex:'<strong>需要</strong>（じゅよう）⇔<strong>供給</strong>（きょうきゅう）。買いたい側⇔売る・提供する側。'},
+
+{id:'k4_08',stage:'k4',week:'3月1週',topic:'対義語',tclass:'t4',
+ q:'「偶然」の対義語はどれですか？',
+ a:'必然',
+ opts:['必然','当然','自然','突然'],
+ ex:'<strong>偶然</strong>（ぐうぜん）⇔<strong>必然</strong>（ひつぜん）。偶然＝たまたま起こること。必然＝必ずそうなること。'},
+
+{id:'k4_09',stage:'k4',week:'3月1週',topic:'対義語',tclass:'t4',
+ q:'「暗黒」の対義語はどれですか？',
+ a:'光明',
+ opts:['光明','明暗','輝光','夜明け'],
+ ex:'<strong>暗黒</strong>⇔<strong>光明</strong>（こうめい）。光明は「明るい見こみや希望」という意味でも使う（光明が差す）。'},
+
+{id:'k4_10',stage:'k4',week:'3月1週',topic:'対義語',tclass:'t4',
+ q:'「収縮」の対義語はどれですか？',
+ a:'膨張',
+ opts:['膨張','拡大','解放','発展'],
+ ex:'<strong>収縮</strong>（しゅうしゅく）⇔<strong>膨張</strong>（ぼうちょう）。縮む⇔ふくらむ。理科でも頻出のペア。'},
+
+{id:'k4_11',stage:'k4',week:'3月1週',topic:'対義語',tclass:'t4',
+ q:'「浪費」の対義語はどれですか？',
+ a:'節約',
+ opts:['節約','倹約','貯蓄','消費'],
+ ex:'<strong>浪費</strong>⇔<strong>節約（倹約）</strong>。むだ遣い⇔無駄をはぶいて大切に使うこと。類義語として「倹約」も正解。'},
+
+{id:'k4_12',stage:'k4',week:'3月1週',topic:'類義語',tclass:'t4',
+ q:'「誤解」の類義語はどれですか？',
+ a:'曲解',
+ opts:['曲解','理解','解釈','誤算'],
+ ex:'<strong>曲解</strong>（きょっかい）＝事実・発言をわざとまげて解釈すること。「誤解」（まちがえた理解）の類義語。'},
+
+// ════════════════════════════════════════
+// 3月2週：熟語総合
+// ════════════════════════════════════════
+{id:'k5_01',stage:'k5',week:'3月2週',topic:'熟語の組み立て',tclass:'t5',
+ q:'「勝負」の熟語の組み立ては？',
+ a:'反対の意味の漢字を組み合わせる',
+ opts:['反対の意味の漢字を組み合わせる','似た意味の漢字を組み合わせる','上の字が下の字を修飾する','動作＋対象（動詞＋目的語）'],
+ ex:'<strong>勝負</strong>は「勝（勝つ）」⇔「負（負ける）」で反対の意味。同様：遠近・前後・明暗・長短・父母・開閉など。'},
+
+{id:'k5_02',stage:'k5',week:'3月2週',topic:'熟語の組み立て',tclass:'t5',
+ q:'「着席」の熟語の組み立ては？',
+ a:'動詞＋その目的語（着く＋席に）',
+ opts:['反対の意味の漢字を組み合わせる','似た意味の漢字を組み合わせる','上が主語・下が述語','動詞＋その目的語（着く＋席に）'],
+ ex:'<strong>着席</strong>は「席に着く」＝動詞（着）＋対象（席）。同様：開会・登山・消火・読書・貯金など。'},
+
+{id:'k5_03',stage:'k5',week:'3月2週',topic:'熟語の組み立て',tclass:'t5',
+ q:'「雷鳴」の熟語の組み立ては？',
+ a:'上が主語・下が述語（雷が鳴る）',
+ opts:['上が下を修飾する','動詞＋目的語','上が主語・下が述語（雷が鳴る）','似た意味の漢字を組み合わせる'],
+ ex:'<strong>雷鳴</strong>は「雷が鳴る」＝主語＋述語型。同様：日没（日が没する）・地震（地が震える）・国営・市営など。'},
+
+{id:'k5_04',stage:'k5',week:'3月2週',topic:'熟語の組み立て',tclass:'t5',
+ q:'「暗室」の熟語の組み立ては？',
+ a:'上の字が下の字を修飾する（暗い室）',
+ opts:['上の字が下の字を修飾する（暗い室）','反対の意味の漢字','動詞＋目的語','上が主語・下が述語'],
+ ex:'<strong>暗室</strong>は「暗い室」＝形容詞（暗い）＋名詞（室）。同様：青葉・親友・熱湯・深海・特急・長短など。'},
+
+{id:'k5_05',stage:'k5',week:'3月2週',topic:'不・無・非・未',tclass:'t5',
+ q:'「（　）成年」に入る漢字はどれですか？',
+ a:'未',
+ opts:['未','不','無','非'],
+ ex:'<strong>未成年</strong>：まだ成年になっていない。「未（まだ〜でない）」を使う。未来・未完・未経験・未発達なども「未」。'},
+
+{id:'k5_06',stage:'k5',week:'3月2週',topic:'不・無・非・未',tclass:'t5',
+ q:'「（　）責任」に入る漢字はどれですか？',
+ a:'無',
+ opts:['無','不','非','未'],
+ ex:'<strong>無責任</strong>：責任がない。「無（ない・なし）」を使う。無関係・無意識・無理・無職なども「無」。'},
+
+{id:'k5_07',stage:'k5',week:'3月2週',topic:'不・無・非・未',tclass:'t5',
+ q:'「（　）公式」に入る漢字はどれですか？',
+ a:'非',
+ opts:['非','不','無','未'],
+ ex:'<strong>非公式</strong>：公式ではない・正式ではない。「非（〜でない）」を使う。非常識・非常・非公開なども「非」。'},
+
+{id:'k5_08',stage:'k5',week:'3月2週',topic:'的・性・然・化',tclass:'t5',
+ q:'「科学（　）」に入る漢字はどれですか？',
+ a:'的',
+ opts:['的','性','然','化'],
+ ex:'<strong>科学的</strong>：科学のような・科学にもとづいた。「〜的（〜のような・〜に関する）」。具体的・積極的なども同様。'},
+
+{id:'k5_09',stage:'k5',week:'3月2週',topic:'的・性・然・化',tclass:'t5',
+ q:'「近代（　）」に入る漢字はどれですか？（近代にする意味）',
+ a:'化',
+ opts:['化','的','性','然'],
+ ex:'<strong>近代化</strong>：近代にすること・させること。「〜化（〜にする・なる）」。悪化・液化・民主化・合理化なども「化」。'},
+
+{id:'k5_10',stage:'k5',week:'3月2週',topic:'四字熟語',tclass:'t5',
+ q:'「以心伝心」の意味はどれですか？',
+ a:'言葉を使わずに、心から心へ通じること',
+ opts:['言葉を使わずに、心から心へ通じること','一生に一度の出会いを大切にすること','一つのことをして二つの利益を得ること','多くの人が口をそろえて同じことを言うこと'],
+ ex:'<strong>以心伝心</strong>（いしんでんしん）＝言葉がなくても気持ちが通じること。「阿吽の呼吸」と似た意味。'},
+
+{id:'k5_11',stage:'k5',week:'3月2週',topic:'四字熟語',tclass:'t5',
+ q:'「自業自得」の意味はどれですか？',
+ a:'自分の悪い行いの報いを、自分で受けること',
+ opts:['自分の悪い行いの報いを、自分で受けること','自分で自分のことをほめること','逃れようのない困難な状態','公平で正しいこと'],
+ ex:'<strong>自業自得</strong>（じごうじとく）＝自分でやったことの結果を自分で受ける。悪い意味で使われることが多い。'},
+
+{id:'k5_12',stage:'k5',week:'3月2週',topic:'四字熟語',tclass:'t5',
+ q:'「単刀直入」の意味はどれですか？',
+ a:'前置きなしに、いきなり本題に入ること',
+ opts:['前置きなしに、いきなり本題に入ること','困難に打ち勝とうと必死に努力すること','昔のことを研究して新しい知識を得ること','逃れようのない危険で困難な状態'],
+ ex:'<strong>単刀直入</strong>（たんとうちょくにゅう）＝一本の刀を持って真っ直ぐ切り込む→前置きなしに本題へ。'},
+
+{id:'k5_13',stage:'k5',week:'3月2週',topic:'四字熟語',tclass:'t5',
+ q:'「温故知新」の意味はどれですか？',
+ a:'昔のことを研究し、そこから新しい知識や道理を見つけ出すこと',
+ opts:['昔のことを研究し、そこから新しい知識や道理を見つけ出すこと','栄えたり衰えたりをくりかえすこと','自分の悪い行いの報いを受けること','一つのことに集中して取り組むこと'],
+ ex:'<strong>温故知新</strong>（おんこちしん）＝故きを温ねて新しきを知る。孔子の言葉。歴史学習の大切さを表す。'},
+
+{id:'k5_14',stage:'k5',week:'3月2週',topic:'四字熟語',tclass:'t5',
+ q:'「絶体絶命」の意味はどれですか？',
+ a:'逃れようのない、危険で困難な状態',
+ opts:['逃れようのない、危険で困難な状態','最初から最後まで一貫していること','死にものぐるいで困難に立ち向かうこと','過去にも未来にもないような珍しいこと'],
+ ex:'<strong>絶体絶命</strong>（ぜったいぜつめい）＝体も命も絶たれそうな状態→逃れる手段がない窮地。'},
+
+{id:'k5_15',stage:'k5',week:'3月2週',topic:'四字熟語',tclass:'t5',
+ q:'「一喜一憂」の意味はどれですか？',
+ a:'状況が変わるたびに、喜んだり心配したりすること',
+ opts:['状況が変わるたびに、喜んだり心配したりすること','互いの気持ちや考えがぴったりと合うこと','言葉の裏に深い意味が隠されていること','一つのことをして二つの利益を得ること'],
+ ex:'<strong>一喜一憂</strong>（いっきいちゆう）＝喜び（一喜）と不安（一憂）を交互に感じること。入試結果などで使う。'},
+];
+
+// ================================================================
+// ステージ定義
+// ================================================================
+const STAGES=[
+  {id:'k1',cls:'k1',name:'2月1週',sub:'かなと漢字',topic:'かなづかい・送りがな・漢字の成り立ち・部首',
+   boss:'📜 文字の守護者',bossName:'カルタ・マスター'},
+  {id:'k2',cls:'k2',name:'2月2週',sub:'同訓異字',topic:'同じ訓読み・意味で使い分ける漢字',
+   boss:'⚔️ 同訓の刺客',bossName:'ドウクン'},
+  {id:'k3',cls:'k3',name:'2月3週',sub:'同音異義語',topic:'同じ音・異なる意味の漢字語',
+   boss:'🔤 音の魔術師',bossName:'ドウオン卿'},
+  {id:'k4',cls:'k4',name:'3月1週',sub:'類義語・対義語',topic:'意味が似た語・反対の語',
+   boss:'⚖️ 言葉の天秤',bossName:'タイギ・マスター'},
+  {id:'k5',cls:'k5',name:'3月2週',sub:'熟語総合',topic:'熟語の組み立て・四字熟語・接頭語',
+   boss:'🏯 熟語の大魔王',bossName:'ジュクゴ大帝'},
+];
+
+// ================================================================
+// LocalStorage
+// ================================================================
+const LS_M='kokugo1ki_mastered', LS_I='kokugo1ki_incorrect';
+function loadLS(){
+  try{return{mastered:JSON.parse(localStorage.getItem(LS_M)||'[]'),incorrect:JSON.parse(localStorage.getItem(LS_I)||'[]')};}
+  catch(e){return{mastered:[],incorrect:[]};}
+}
+function saveLS(m,i){localStorage.setItem(LS_M,JSON.stringify(m));localStorage.setItem(LS_I,JSON.stringify(i));}
+
+// ================================================================
+// 状態
+// ================================================================
+let state={mode:'home',stageId:null,questions:[],qIndex:0,score:0,answered:false,mastered:[],incorrect:[]};
+
+function shuffleArr(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+// ================================================================
+// ホーム
+// ================================================================
+function init(){const ls=loadLS();state.mastered=ls.mastered;state.incorrect=ls.incorrect;renderHome();}
+
+function renderHome(){
+  document.getElementById('start').style.display='block';
+  document.getElementById('battle').style.display='none';
+  document.getElementById('clear').style.display='none';
+  document.getElementById('homeBtn').style.display='none';
+  const ls=loadLS();state.mastered=ls.mastered;state.incorrect=ls.incorrect;
+
+  document.getElementById('totalQ').textContent=QDB.length;
+  document.getElementById('totalMastered').textContent=state.mastered.length;
+  document.getElementById('totalWeak').textContent=state.incorrect.length;
+
+  const wb=document.getElementById('weakBtn');
+  if(state.incorrect.length>0){wb.classList.remove('hidden');document.getElementById('weakCount').textContent=state.incorrect.length;}
+  else{wb.classList.add('hidden');}
+
+  const grid=document.getElementById('stageGrid');
+  grid.innerHTML='';
+  STAGES.forEach(st=>{
+    const qs=QDB.filter(q=>q.stage===st.id);
+    const mc=qs.filter(q=>state.mastered.includes(q.id)).length;
+    const pct=qs.length>0?Math.round(mc/qs.length*100):0;
+    const stars=pct===100?'⭐⭐⭐':pct>=60?'⭐⭐':pct>=30?'⭐':'';
+    const card=document.createElement('div');
+    card.className=`stage-card ${st.cls}`;
+    card.innerHTML=`
+      <div class="tag">${st.name}</div>
+      <div class="title">${st.sub}</div>
+      <div class="sub2">${st.topic}</div>
+      <div class="prog">
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+        <span style="font-size:11px;color:var(--text2)">${mc}/${qs.length}</span>
+      </div>
+      ${stars?`<div class="stars">${stars}</div>`:''}
+    `;
+    card.onclick=()=>startStage(st.id);
+    grid.appendChild(card);
+  });
+}
+
+// ================================================================
+// バトル開始
+// ================================================================
+function startStage(stageId){
+  const qs=QDB.filter(q=>q.stage===stageId);
+  const weak=qs.filter(q=>state.incorrect.includes(q.id));
+  const unlearned=qs.filter(q=>!state.mastered.includes(q.id)&&!state.incorrect.includes(q.id));
+  const mastered=qs.filter(q=>state.mastered.includes(q.id)&&!state.incorrect.includes(q.id));
+  const pool=[...shuffleArr(weak),...shuffleArr(unlearned),...shuffleArr(mastered)];
+  const st=STAGES.find(s=>s.id===stageId);
+  launchBattle(pool,st.name+' '+st.sub,st.bossName,st.boss,stageId);
+}
+
+function startWeak(){
+  const weak=QDB.filter(q=>state.incorrect.includes(q.id));
+  launchBattle(shuffleArr(weak),'弱点集中モード','👹 ラスボス','⚔️ 全弱点','weak');
+}
+
+function launchBattle(pool,title,bossName,bossFace,stageId){
+  state={...state,mode:'battle',stageId,questions:pool,qIndex:0,score:0};
+  document.getElementById('start').style.display='none';
+  document.getElementById('battle').style.display='block';
+  document.getElementById('clear').style.display='none';
+  document.getElementById('homeBtn').style.display='block';
+  document.getElementById('battleTitle').textContent=title;
+  document.getElementById('enemyName').textContent=bossName;
+  document.getElementById('enemyFace').textContent=bossFace;
+  updateHP();showQ();
+}
+
+function updateHP(){
+  const total=state.questions.length, rem=total-state.qIndex;
+  const pct=Math.round(rem/total*100);
+  document.getElementById('hpFill').style.width=pct+'%';
+  document.getElementById('hpText').textContent=rem+'/'+total;
+  document.getElementById('qCounter').textContent=(state.qIndex+1)+'/'+total;
+}
+
+// ================================================================
+// 問題表示
+// ================================================================
+function showQ(){
+  if(state.qIndex>=state.questions.length){showClear();return;}
+  const q=state.questions[state.qIndex];
+  state.answered=false;
+
+  document.getElementById('qWeek').textContent=q.week;
+  // type label
+  const tl=document.getElementById('qTypeLabel');
+  tl.textContent=q.topic;
+  tl.className='q-type-label '+(q.tclass||'t1');
+
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('resultMsg').className='result-msg';
+  document.getElementById('resultMsg').textContent='';
+  document.getElementById('explainBox').className='explain-box';
+  document.getElementById('nextBtn').className='next-btn';
+
+  const opts=shuffleArr(q.opts);
+  // 選択肢が3文字以上長いなら1列
+  const isLong=opts.some(o=>o.length>14);
+  const choicesEl=document.getElementById('choices');
+  choicesEl.className='choices'+(isLong?' single':'');
+  choicesEl.innerHTML='';
+  opts.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='choice';
+    btn.textContent=opt;
+    btn.onclick=()=>answerQ(btn,opt,q);
+    choicesEl.appendChild(btn);
+  });
+  updateHP();
+}
+
+// ================================================================
+// 解答
+// ================================================================
+function answerQ(btn,chosen,q){
+  if(state.answered)return;
+  state.answered=true;
+  document.querySelectorAll('.choice').forEach(b=>b.classList.add('disabled'));
+
+  const correct=chosen===q.a;
+  if(correct){
+    btn.classList.add('correct');
+    state.score++;
+    if(!state.mastered.includes(q.id))state.mastered.push(q.id);
+    state.incorrect=state.incorrect.filter(id=>id!==q.id);
+    const rm=document.getElementById('resultMsg');
+    rm.className='result-msg show ok';
+    rm.textContent='⭐ 正解！';
+    const face=document.getElementById('enemyFace');
+    face.classList.add('shake');setTimeout(()=>face.classList.remove('shake'),300);
+  }else{
+    btn.classList.add('wrong');
+    document.querySelectorAll('.choice').forEach(b=>{if(b.textContent===q.a)b.classList.add('correct');});
+    if(!state.incorrect.includes(q.id))state.incorrect.push(q.id);
+    state.mastered=state.mastered.filter(id=>id!==q.id);
+    const rm=document.getElementById('resultMsg');
+    rm.className='result-msg show ng';
+    rm.textContent='✗ 不正解…';
+  }
+  saveLS(state.mastered,state.incorrect);
+  if(q.ex){
+    const eb=document.getElementById('explainBox');
+    eb.innerHTML='<strong>解説</strong>：'+q.ex;
+    eb.className='explain-box show';
+  }
+  document.getElementById('nextBtn').className='next-btn show';
+}
+
+function nextQ(){state.qIndex++;showQ();}
+
+// ================================================================
+// クリア
+// ================================================================
+function showClear(){
+  const total=state.questions.length, pct=Math.round(state.score/total*100);
+  document.getElementById('battle').style.display='none';
+  document.getElementById('clear').style.display='block';
+  let emoji='😤',title='もう少し！',sub='弱点をもう一度やろう！';
+  if(pct>=90){emoji='🏆';title='完璧！';sub='ほぼ全問正解！次のステージへ！';}
+  else if(pct>=70){emoji='⭐';title='合格！';sub='もう一息で完璧だ！';}
+  else if(pct>=50){emoji='💪';title='まあまあ！';sub='弱点集中モードで補強しよう。';}
+  document.getElementById('clearEmoji').textContent=emoji;
+  document.getElementById('clearTitle').textContent=title;
+  document.getElementById('clearSub').textContent=sub;
+  document.getElementById('scoreBig').textContent=state.score;
+  document.getElementById('scoreLabel2').textContent='/ '+total+' 問（'+pct+'%）';
+}
+
+function retryStage(){if(state.stageId==='weak')startWeak();else if(state.stageId)startStage(state.stageId);}
+
+function goHome(){
+  if(state.mode==='battle'){if(!confirm('ホームへ戻りますか？'))return;}
+  state.mode='home';renderHome();
+}
+
+init();
+</script>
+</body>
+</html>
