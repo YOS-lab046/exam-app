@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>武蔵ノート</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700&display=swap');
+
+:root {
+  --bg: #1a1a2e;
+  --bg2: #16213e;
+  --bg3: #0f3460;
+  --card: #1e2a4a;
+  --card-hover: #253358;
+  --text: #e0e0e0;
+  --text-dim: #8899aa;
+  --accent: #e94560;
+  --accent2: #ffc947;
+  --accent3: #00d2ff;
+  --kokugo: #ff6b8a;
+  --sansu: #4ecdc4;
+  --rika: #45b7d1;
+  --shakai: #f7dc6f;
+  --senryaku: #bb86fc;
+  --twoe: #ff8a65;
+  --msg: #81c784;
+  --border: rgba(255,255,255,0.08);
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:15px; scroll-behavior:smooth; }
+body {
+  font-family:'Noto Sans JP',sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Header */
+.header {
+  position:sticky; top:0; z-index:100;
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+  border-bottom:1px solid var(--border);
+  padding:12px 16px 0;
+  backdrop-filter:blur(20px);
+}
+.header-top {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:10px;
+}
+.logo {
+  font-family:'Noto Serif JP',serif;
+  font-size:1.4rem; font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  letter-spacing:0.1em;
+}
+.logo-sub { font-size:0.65rem; color:var(--text-dim); font-weight:300; }
+
+/* Search */
+.search-box {
+  position:relative; margin-bottom:10px;
+}
+.search-box input {
+  width:100%; padding:10px 14px 10px 38px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--border);
+  border-radius:8px; color:var(--text);
+  font-size:0.9rem; outline:none;
+  transition:border 0.2s;
+}
+.search-box input:focus { border-color:var(--accent3); }
+.search-box input::placeholder { color:var(--text-dim); }
+.search-icon {
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  color:var(--text-dim); font-size:0.9rem;
+}
+
+/* Tabs */
+.tabs {
+  display:flex; gap:2px; overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  padding-bottom:0;
+}
+.tabs::-webkit-scrollbar { display:none; }
+.tab {
+  flex-shrink:0;
+  padding:8px 14px;
+  font-size:0.75rem; font-weight:500;
+  color:var(--text-dim);
+  border:none; background:none;
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:all 0.2s;
+  white-space:nowrap;
+}
+.tab:hover { color:var(--text); }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); font-weight:700; }
+.tab[data-tab="kokugo"].active { color:var(--kokugo); border-bottom-color:var(--kokugo); }
+.tab[data-tab="sansu"].active { color:var(--sansu); border-bottom-color:var(--sansu); }
+.tab[data-tab="rika"].active { color:var(--rika); border-bottom-color:var(--rika); }
+.tab[data-tab="shakai"].active { color:var(--shakai); border-bottom-color:var(--shakai); }
+.tab[data-tab="senryaku"].active { color:var(--senryaku); border-bottom-color:var(--senryaku); }
+.tab[data-tab="twoe"].active { color:var(--twoe); border-bottom-color:var(--twoe); }
+.tab[data-tab="msg"].active { color:var(--msg); border-bottom-color:var(--msg); }
+
+/* Content */
+.content { padding:16px; max-width:800px; margin:0 auto; }
+.panel { display:none; animation:fadeIn 0.3s ease; }
+.panel.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+/* Cards */
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  margin-bottom:12px;
+  overflow:hidden;
+  transition:background 0.2s;
+}
+.card:hover { background:var(--card-hover); }
+.card-header {
+  padding:14px 16px;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between;
+  user-select:none;
+}
+.card-header h3 {
+  font-size:0.95rem; font-weight:700;
+  display:flex; align-items:center; gap:8px;
+}
+.card-toggle {
+  font-size:0.8rem; color:var(--text-dim);
+  transition:transform 0.3s;
+}
+.card.open .card-toggle { transform:rotate(180deg); }
+.card-body {
+  max-height:0; overflow:hidden;
+  transition:max-height 0.4s ease;
+}
+.card.open .card-body { max-height:5000px; }
+.card-inner {
+  padding:0 16px 16px;
+  font-size:0.85rem; line-height:1.8;
+  color:var(--text-dim);
+}
+
+/* Tags */
+.tag {
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:4px;
+  font-size:0.7rem; font-weight:500;
+  margin:2px;
+}
+.tag-kokugo { background:rgba(255,107,138,0.15); color:var(--kokugo); }
+.tag-sansu { background:rgba(78,205,196,0.15); color:var(--sansu); }
+.tag-rika { background:rgba(69,183,209,0.15); color:var(--rika); }
+.tag-shakai { background:rgba(247,220,111,0.15); color:var(--shakai); }
+.tag-important { background:rgba(233,69,96,0.15); color:var(--accent); }
+
+/* Tables */
+.tbl { width:100%; border-collapse:collapse; margin:10px 0; font-size:0.8rem; }
+.tbl th { background:rgba(255,255,255,0.05); padding:8px 10px; text-align:left; font-weight:500; color:var(--text); border-bottom:1px solid var(--border); }
+.tbl td { padding:8px 10px; border-bottom:1px solid var(--border); color:var(--text-dim); }
+.tbl tr:hover td { background:rgba(255,255,255,0.02); }
+
+/* Key stat boxes */
+.stat-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin:12px 0; }
+.stat {
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:8px; padding:12px;
+  text-align:center;
+}
+.stat-val { font-size:1.5rem; font-weight:900; font-family:'Noto Serif JP',serif; }
+.stat-label { font-size:0.7rem; color:var(--text-dim); margin-top:4px; }
+
+/* Highlight */
+.hl { color:var(--accent2); font-weight:700; }
+.hl2 { color:var(--accent3); font-weight:500; }
+strong { color:var(--text); }
+
+/* Lists */
+.card-inner ul { padding-left:1.2em; }
+.card-inner li { margin-bottom:6px; }
+.card-inner ol { padding-left:1.4em; }
+.card-inner ol li { margin-bottom:8px; }
+
+/* Search results highlight */
+mark { background:var(--accent2); color:var(--bg); padding:1px 3px; border-radius:2px; }
+
+/* Bottom nav spacer */
+.spacer { height:80px; }
+
+/* Print */
+@media print {
+  .header { position:static; }
+  .card-body { max-height:none !important; }
+  body { background:#fff; color:#000; }
+}
+
+/* Kanji Quiz */
+.kanji-list { display:flex; flex-direction:column; gap:4px; }
+.kq {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 12px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:6px;
+  cursor:pointer;
+  transition:background 0.2s;
+  user-select:none;
+}
+.kq:hover { background:rgba(255,255,255,0.06); }
+.kq:active { background:rgba(255,107,138,0.1); }
+.kq-q { font-weight:500; color:var(--text); font-size:0.9rem; }
+.kq-a {
+  font-weight:700; color:var(--kokugo);
+  opacity:0; transition:opacity 0.3s;
+  font-size:0.9rem;
+}
+.kq.show .kq-a { opacity:1; }
+.kq.show { border-color:rgba(255,107,138,0.3); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="logo">武蔵ノート</div>
+      <div class="logo-sub">MUSASHI REFERENCE — 2027入試対策</div>
+    </div>
+    <div style="font-size:0.7rem;color:var(--text-dim)">v0.3</div>
+  </div>
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="キーワードで検索（例：調べ上げ、おみやげ、記述の型）">
+  </div>
+  <div class="tabs" id="tabBar">
+    <button class="tab active" data-tab="senryaku">⚔️ 戦略</button>
+    <button class="tab" data-tab="kokugo">📖 国語</button>
+    <button class="tab" data-tab="sansu">📐 算数</button>
+    <button class="tab" data-tab="rika">🔬 理科</button>
+    <button class="tab" data-tab="shakai">🌍 社会</button>
+    <button class="tab" data-tab="twoe">🧠 2E対応</button>
+    <button class="tab" data-tab="msg">💬 格言</button>
+  </div>
+</div>
+
+<div class="content" id="content">
+
+<!-- ========== 戦略 ========== -->
+<div class="panel active" id="panel-senryaku">
+
+<div class="stat-row">
+  <div class="stat"><div class="stat-val" style="color:var(--accent)">320</div><div class="stat-label">満点</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--accent2)">~210</div><div class="stat-label">合格目安(66%)</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--accent3)">4科</div><div class="stat-label">国算100+理社60</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--senryaku)">2/1</div><div class="stat-label">受験日</div></div>
+</div>
+
+<div class="card open" data-search="武蔵 求める 生徒像 教育理念 探究 思考力 表現力">
+  <div class="card-header"><h3>🏫 武蔵が求める生徒像</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <p><strong>核心：</strong>「<span class="hl">自ら調べ、自ら考え、自ら表現する</span>」探究者</p>
+    <ul>
+      <li><strong>思考力</strong>：知識の暗記ではなく、目の前の事象から原理を発見・推論する力</li>
+      <li><strong>表現力</strong>：自分の考えを他者に伝わる形で論理的に構成し表現する力</li>
+      <li><strong>粘り強さ</strong>：すぐ諦めず実直に粘り強く考える姿勢</li>
+      <li><strong>過程の重視</strong>：答えだけでなく「考え方やたどり着くまでの過程」を評価</li>
+      <li><strong>実物・現象へのこだわり</strong>：理科の「おみやげ問題」、初見資料の分析</li>
+    </ul>
+    <p style="margin-top:10px;color:var(--accent3)">💡 入試は「最初の授業の予告」 — 知識を「考えるための燃料」として使いこなす力が問われる</p>
+  </div></div>
+</div>
+
+<div class="card" data-search="配点 試験時間 合格 目標 得点">
+  <div class="card-header"><h3>📊 試験構成と目標得点</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>教科</th><th>時間</th><th>配点</th><th>最低</th><th>標準</th><th>理想</th></tr>
+      <tr><td>国語</td><td>50分</td><td>100点</td><td>60</td><td>65</td><td>70+</td></tr>
+      <tr><td>算数</td><td>50分</td><td>100点</td><td>60</td><td>65</td><td>70+</td></tr>
+      <tr><td>理科</td><td>40分</td><td>60点</td><td>35</td><td>40</td><td>45+</td></tr>
+      <tr><td>社会</td><td>40分</td><td>60点</td><td>35</td><td>40</td><td>45+</td></tr>
+      <tr style="font-weight:700"><td>合計</td><td>—</td><td>320点</td><td>190</td><td>210</td><td>230+</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<div class="card" data-search="全教科 共通 記述 観察 論理 科目横断">
+  <div class="card-header"><h3>🔗 全教科共通の「武蔵らしさ」</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ol>
+      <li><strong>「実物・資料」へのこだわり</strong>：初見の資料や実物が全教科で提示される</li>
+      <li><strong>「結果」よりも「プロセス」</strong>：考え方の開示が最重要。途中過程で部分点</li>
+      <li><strong>自分の言葉への「換言」</strong>：本文や資料の丸写しではなく再構築が必要</li>
+      <li><strong>客観的な「事実」に基づく論理構築</strong>：思い込みを排除し、データから結論を導く</li>
+      <li><strong>誘導形式</strong>：(1)の気づきが(2)(3)のヒントになる構造が全教科共通</li>
+    </ol>
+  </div></div>
+</div>
+
+<div class="card" data-search="記述 型 構成 パターン 模範解答 キーワード 因果 対比">
+  <div class="card-header"><h3>✍️ 記述の型テンプレート（全教科共通）</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <p><strong>理由先行型：</strong>「〜ため／〜から、Bである」— 最も一般的</p>
+    <p><strong>結論先行型：</strong>「Bである。なぜならA」— 端的に述べてから補足</p>
+    <p style="margin:10px 0"><strong>文字数別の構成モデル：</strong></p>
+    <table class="tbl">
+      <tr><th>字数</th><th>構成</th></tr>
+      <tr><td>~50字</td><td>単一の因果関係「Aの理由で、Bとなる」</td></tr>
+      <tr><td>~80字</td><td>二要素の対比「Aである一方でB。結果C」</td></tr>
+      <tr><td>~100字</td><td>背景＋原因＋結論「かつてA→現在B→結果C」</td></tr>
+      <tr><td>120字~</td><td>複数条件の統合「条件A+条件B→心理C→行動D」</td></tr>
+    </table>
+    <p style="margin-top:10px"><strong>必須キーワード：</strong></p>
+    <ul>
+      <li><span class="hl2">因果</span>：「〜ため」「〜から」「〜ので」「〜結果として」</li>
+      <li><span class="hl2">対比</span>：「一方で」「〜に対して」「〜とは異なり」</li>
+      <li><span class="hl2">統合</span>：「さらに」「加えて」「複合的に」「多角的に」</li>
+    </ul>
+  </div></div>
+</div>
+</div>
+
+<!-- ========== 国語 ========== -->
+<div class="panel" id="panel-kokugo">
+<div class="stat-row">
+  <div class="stat"><div class="stat-val" style="color:var(--kokugo)">50</div><div class="stat-label">分 / 100点</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--kokugo)">1題</div><div class="stat-label">超長文</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--kokugo)">80%</div><div class="stat-label">記述配点</div></div>
+</div>
+
+<div class="card open" data-search="国語 出題傾向 構成 大問 ジャンル 物語 論説 随筆">
+  <div class="card-header"><h3><span class="tag tag-kokugo">国語</span> 出題傾向</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <p><strong>大問構成：</strong>大問1（長文読解3000〜4500字）＋ 大問2（漢字8問）</p>
+    <p><strong>記述：</strong>字数制限なし・白地枠に自由記述。5〜8問。配点70〜80%</p>
+    <p style="margin:10px 0"><strong>ジャンル別：</strong></p>
+    <ul>
+      <li><strong>物語文・小説</strong>（60%）：心情の機微、人間関係、葛藤の並立</li>
+      <li><strong>論説文</strong>（30%）：AI、嗅覚、身体性、利他性など哲学的テーマ</li>
+      <li><strong>随筆</strong>（近年増加）：2024年・2025年連続で随筆出題</li>
+    </ul>
+    <p><strong>交互出題の法則：</strong>物語→論説→物語 のサイクルが基本</p>
+  </div></div>
+</div>
+
+<div class="card" data-search="国語 年度 著者 作品 テーマ 一覧">
+  <div class="card-header"><h3><span class="tag tag-kokugo">国語</span> 年度別出題データ</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>年度</th><th>著者</th><th>テーマ</th></tr>
+      <tr><td>2025</td><td>幸田文</td><td>動物と人間の関係性・飼育係</td></tr>
+      <tr><td>2024</td><td>荒木健作</td><td>自己評価・劣等感・他者比較</td></tr>
+      <tr><td>2023</td><td>山鳥亮</td><td>利己と利他・善意の曖昧さ</td></tr>
+      <tr><td>2022</td><td>伊藤亜紗</td><td>身体性と思考・視覚障害者の記憶</td></tr>
+      <tr><td>2021</td><td>加藤博子</td><td>嗅覚の文化的意味・無臭化</td></tr>
+      <tr><td>2020</td><td>宮下奈都</td><td>母の死・喪失と回復</td></tr>
+      <tr><td>2019</td><td>中脇初枝</td><td>特攻・極限状況下の心理</td></tr>
+      <tr><td>2018</td><td>石黒浩</td><td>ロボットと人間の境界</td></tr>
+      <tr><td>2017</td><td>佐川光晴</td><td>複雑な家族関係・心情変化</td></tr>
+      <tr><td>2016</td><td>井上ひさし</td><td>孤児院の生活・「家庭」への憧れ</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<div class="card" data-search="国語 記述 型 パターン 心情 比喩 定義 対比 12の型">
+  <div class="card-header"><h3><span class="tag tag-kokugo">国語</span> 記述12の型</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ol>
+      <li><strong>筆者独自定義の読み取り</strong>：「時間の檻」「イニシアティヴの放棄」等の再定義を把握</li>
+      <li><strong>対比構造の把握と説明</strong>：「進歩と退歩」「技術と人間」両方を説明</li>
+      <li><strong>具体→抽象への言い換え</strong>：エピソードから主題を導出</li>
+      <li><strong>心情の多層的言語化</strong>：「悲しい」→「戸惑い」「うろたえる」「淋しさ」</li>
+      <li><strong>比喩・象徴の具体化</strong>：「時間の檻」「神さま」を文脈で説明</li>
+      <li><strong>逆説的再定義</strong>：ネガティブ→ポジティブの転換を理解</li>
+      <li><strong>論理関係語による構造把握</strong>：「つまり」「しかし」の前後関係</li>
+      <li><strong>他者視点の理解</strong>：動物・障害者など異なる立場から説明</li>
+      <li><strong>主題把握と要約</strong>：全体の主張を「つまり」以降で把握</li>
+      <li><strong>語彙の文脈適応</strong>：「チューニング」等の専門語を文脈で理解</li>
+      <li><strong>社会批評的視点</strong>：「無臭化」「疑似体験」等の批評を把握</li>
+      <li><strong>記述の論理構成</strong>：具体例→抽象化→結論の流れ</li>
+    </ol>
+  </div></div>
+</div>
+
+<div class="card" data-search="国語 時間配分 戦略">
+  <div class="card-header"><h3><span class="tag tag-kokugo">国語</span> 時間配分</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>フェーズ</th><th>時間</th><th>内容</th></tr>
+      <tr><td>通読</td><td>10分</td><td>全体の流れ・主題把握。論理構造メモ</td></tr>
+      <tr><td>大問1解答</td><td>30分</td><td>記述に集中。選択問題は素早く</td></tr>
+      <tr><td>漢字</td><td>5分</td><td>確実に得点。迷う問題は後回し</td></tr>
+      <tr><td>見直し</td><td>5分</td><td>誤字脱字・主語述語の対応確認</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<div class="card" data-search="漢字 書き取り クイズ フラッシュカード 練習">
+  <div class="card-header"><h3><span class="tag tag-kokugo">国語</span> 漢字クイズ（タップで答え）</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <p style="color:var(--accent3);margin-bottom:10px">💡 各問題をタップすると答えが表示されます</p>
+    <p style="font-weight:700;margin:12px 0 6px">■ 2025年度</p>
+    <div class="kanji-list">
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">ハチクの勢い</span><span class="kq-a">→ 破竹</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">出船のキテキを聞く</span><span class="kq-a">→ 汽笛</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">陰でカクサクする</span><span class="kq-a">→ 画策</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">毒性の強いゲキヤク</span><span class="kq-a">→ 劇薬</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">現場のサイリョウで判断</span><span class="kq-a">→ 裁量</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">ダントウで雪が少ない</span><span class="kq-a">→ 暖冬</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">新陳タイシャを促す</span><span class="kq-a">→ 代謝</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">目をコやす</span><span class="kq-a">→ 肥やす</span></div>
+    </div>
+    <p style="font-weight:700;margin:12px 0 6px">■ 2024年度</p>
+    <div class="kanji-list">
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">毎年キョウリに帰る</span><span class="kq-a">→ 郷里</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">かろうじてメイミャクを保つ</span><span class="kq-a">→ 命脈</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">ジュウオウに飛び回る</span><span class="kq-a">→ 縦横</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">こまめにホギュウする</span><span class="kq-a">→ 補給</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">ジュンシンな気持ち</span><span class="kq-a">→ 純真</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">雑草がムラがって生える</span><span class="kq-a">→ 群がって</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">紛争のチョウテイ</span><span class="kq-a">→ 調停</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">ロウレンな指揮</span><span class="kq-a">→ 老練</span></div>
+    </div>
+    <p style="font-weight:700;margin:12px 0 6px">■ 2023年度</p>
+    <div class="kanji-list">
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">ジュンエンとなった</span><span class="kq-a">→ 順延</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">校内のフウキを乱す</span><span class="kq-a">→ 風紀</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">武力行使もジさない</span><span class="kq-a">→ 辞さない</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">神仏をオガむ</span><span class="kq-a">→ 拝む</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">書類をユウソウする</span><span class="kq-a">→ 郵送</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">ニュウシが生え替わる</span><span class="kq-a">→ 乳歯</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">無病ソクサイをいのる</span><span class="kq-a">→ 息災</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">海洋資源のホウコ</span><span class="kq-a">→ 宝庫</span></div>
+    </div>
+    <p style="font-weight:700;margin:12px 0 6px">■ 2022年度</p>
+    <div class="kanji-list">
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">不況のヨハが及ぶ</span><span class="kq-a">→ 余波</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">米や麦などのコクルイ</span><span class="kq-a">→ 穀類</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">手にオえない</span><span class="kq-a">→ 負えない</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">新しい制度をソウセツする</span><span class="kq-a">→ 創設</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">多大なコウセキを残す</span><span class="kq-a">→ 功績</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">絵画のテンランカイ</span><span class="kq-a">→ 展覧会</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">ヨウサンで栄えた地域</span><span class="kq-a">→ 養蚕</span></div>
+    </div>
+    <p style="font-weight:700;margin:12px 0 6px">■ 2021年度</p>
+    <div class="kanji-list">
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">情報のシュシャ選択</span><span class="kq-a">→ 取捨</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">病人をカンゴする</span><span class="kq-a">→ 看護</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">ムゲに断れない</span><span class="kq-a">→ 無下</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q">ガイロジュの手入れ</span><span class="kq-a">→ 街路樹</span></div>
+    </div>
+  </div></div>
+</div>
+
+<div class="card" data-search="国語 心情語 語彙 多層的 単純 推奨 言い換え">
+  <div class="card-header"><h3><span class="tag tag-kokugo">国語</span> 心情語レベルアップ表</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>単純（NG）</th><th>多層的（推奨）</th></tr>
+      <tr><td>悲しい</td><td>淋しさ、うろたえる、戦慄、喪失感</td></tr>
+      <tr><td>嬉しい</td><td>戸惑いと喜びが入り混じった、安堵</td></tr>
+      <tr><td>怖い</td><td>恐怖、不安、緊張、畏怖</td></tr>
+      <tr><td>怒り</td><td>憤り、敵愾心、苛立ち</td></tr>
+      <tr><td>恥ずかしい</td><td>羞恥心、とてつもなくはずかしい</td></tr>
+    </table>
+    <p style="margin-top:8px;color:var(--accent3)">💡 武蔵の記述では「悲しい」で終わらせず、なぜ・どのような悲しさかを具体化する</p>
+  </div></div>
+</div>
+
+<div class="card" data-search="国語 解答例 キーポイント 模範 年度別 記述 要素">
+  <div class="card-header"><h3><span class="tag tag-kokugo">国語</span> 年度別 解答キーポイント</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>年度</th><th>核心設問</th><th>必須要素</th><th>注意点</th></tr>
+      <tr><td><strong>2025</strong></td><td>問二・問七</td><td>客→動物のみ注目、飼育員は裏方／飼育係が動物の身になって考える</td><td>概念の定義と因果関係を正確に</td></tr>
+      <tr><td><strong>2024</strong></td><td>問一・問六</td><td>上層階級の子供の特徴／敵愾心＋才能を称える相反する気持ち</td><td>感情の原因と結果を明確に</td></tr>
+      <tr><td><strong>2023</strong></td><td>問二・問六</td><td>企業の社会貢献＝利潤追求の一環／利他は受け手の受け取り方で決まる</td><td>論理＋心理的な深みを表現</td></tr>
+      <tr><td><strong>2022</strong></td><td>問一・問六</td><td>視覚への依存度が低い＋家の構造把握／書くことで頭の中のメモを調整</td><td>複数の視点を統合する網羅性</td></tr>
+      <tr><td><strong>2021</strong></td><td>問一・問四</td><td>差別的表現の回避＋生活臭の消失／嗅覚は数値化できず比喩に頼る</td><td>定義・原因・対比を盛り込む</td></tr>
+      <tr><td><strong>2020</strong></td><td>問一・問七</td><td>母の死→本への興味喪失／彼女の本で回復→友人→明るい生活</td><td>簡潔かつ正確な記述(約50字)</td></tr>
+      <tr><td><strong>2019</strong></td><td>問二・問四</td><td>「しかたがない」で無理に納得／西島伍長の後ろめたさ→生の喜び</td><td>矛盾する感情の両面を記述</td></tr>
+      <tr><td><strong>2018</strong></td><td>問一・問四</td><td>人間の仕事を機械に置き換える技術／人間は道具で生物的限界を超える</td><td>定義・前提・結論の三層構造</td></tr>
+      <tr><td><strong>2017</strong></td><td>問三・問六</td><td>両親の仲直りへの期待／介護を通じた姉妹の実感</td><td>変化に至るプロセスの記述</td></tr>
+      <tr><td><strong>2016</strong></td><td>問二・問三</td><td>孤児院の習慣＋状況への戸惑い／食べ物を素早く確保する習慣</td><td>複数の背景を整理して記述</td></tr>
+    </table>
+    <p style="margin-top:8px;color:var(--kokugo)">🔑 全年度共通：キーワードは概ね<strong>2つ以上</strong>必要。指示語は必ず具体化。本文の丸写しではなく自分の言葉で再構築</p>
+  </div></div>
+</div>
+</div>
+
+<!-- ========== 算数 ========== -->
+<div class="panel" id="panel-sansu">
+<div class="stat-row">
+  <div class="stat"><div class="stat-val" style="color:var(--sansu)">50</div><div class="stat-label">分 / 100点</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--sansu)">4題</div><div class="stat-label">大問</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--sansu)">67</div><div class="stat-label">調べ上げ問題数</div></div>
+</div>
+
+<div class="card open" data-search="算数 頻出 テーマ 調べ上げ 図形 速さ 割合 比">
+  <div class="card-header"><h3><span class="tag tag-sansu">算数</span> 頻出テーマ</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>テーマ</th><th>問題数</th><th>特徴</th></tr>
+      <tr><td><strong>調べ上げ</strong></td><td>67問</td><td>武蔵の代名詞。表・樹形図で網羅的検証</td></tr>
+      <tr><td><strong>平面図形</strong></td><td>26問</td><td>相似・面積比・線分比。<span class="hl">毎年必ず出題</span></td></tr>
+      <tr><td><strong>速さ</strong></td><td>20問</td><td>旅人算・通過算。ダイヤグラム必須</td></tr>
+      <tr><td><strong>割合と比</strong></td><td>20問</td><td>濃度・仕事算・売買損益との融合</td></tr>
+      <tr><td><strong>小問集合</strong></td><td>20問</td><td>大問1。計算・図形・速さの基礎確認</td></tr>
+      <tr><td>立体図形</td><td>12問</td><td>2013年以降大問なし（小問に組込み）</td></tr>
+    </table>
+    <p style="margin-top:10px"><strong>三本柱：</strong><span class="hl">図形（毎年）・規則性（ほぼ毎年）・速さ（7/10年）</span></p>
+  </div></div>
+</div>
+
+<div class="card" data-search="算数 大問 構造 誘導 3段階">
+  <div class="card-header"><h3><span class="tag tag-sansu">算数</span> 大問の3段階誘導構造</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>段階</th><th>役割</th></tr>
+      <tr><td><strong>I. 基礎理解</strong></td><td>ルールの厳密な把握と基礎計算の確認</td></tr>
+      <tr><td><strong>II. 法則性の発見</strong></td><td>情報を可視化し、規則性に気づけるか</td></tr>
+      <tr><td><strong>III. 論理の統合</strong></td><td>法則を全体に適用し、漏れなく結論を導く</td></tr>
+    </table>
+    <p style="margin-top:8px;color:var(--accent)">⚠️ (1)の結果を(2)以降で使うのが鉄則。前問の誘導に乗る！</p>
+  </div></div>
+</div>
+
+<div class="card" data-search="算数 失点 ミス パターン 誤謬 ケアレス 予防">
+  <div class="card-header"><h3><span class="tag tag-sansu">算数</span> 5大失点パターン</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ol>
+      <li><strong>思い込み・決めつけ</strong>：問題文にない条件を勝手に設定 → <span class="hl2">条件を丸で囲む</span></li>
+      <li><strong>ルール読み落とし</strong>：設定の取り違え → <span class="hl2">条件ごとに線を引く</span></li>
+      <li><strong>思考の節約</strong>：いきなり計算、誘導の無視 → <span class="hl2">「何を求めるか」口頭確認</span></li>
+      <li><strong>調べの欠如</strong>：ランダムな書き出し → <span class="hl2">必ず表で整理</span></li>
+      <li><strong>計算ミス</strong>：分数・小数処理 → <span class="hl2">途中式を残す</span></li>
+    </ol>
+  </div></div>
+</div>
+
+<div class="card" data-search="算数 時間配分 戦略 PSI 処理速度">
+  <div class="card-header"><h3><span class="tag tag-sansu">算数</span> 時間配分</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>フェーズ</th><th>時間</th><th>内容</th></tr>
+      <tr><td>俯瞰・選択</td><td>2-3分</td><td>全問確認。解けそうな問題にマーク</td></tr>
+      <tr><td>大問1</td><td>10分</td><td>小問集合を完答目標</td></tr>
+      <tr><td>標準問題</td><td>20分</td><td>大問2〜4の(1)(2)。部分点積み上げ</td></tr>
+      <tr><td>難問挑戦</td><td>15分</td><td>調べ上げ等。記述で部分点を狙う</td></tr>
+      <tr><td>見直し</td><td>5分</td><td>計算ミス確認。空白を埋める</td></tr>
+    </table>
+    <p style="margin-top:8px;color:var(--accent)">⚠️ PSI低め → 「完答主義」を捨て「部分点積み上げ主義」に徹する</p>
+  </div></div>
+</div>
+
+<div class="card" data-search="算数 年度別 問題構成 2022 2023 2024 2025 大問">
+  <div class="card-header"><h3><span class="tag tag-sansu">算数</span> 年度別問題構成（2022-2025）</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <p style="font-weight:700;margin-bottom:6px">■ 2025年度</p>
+    <table class="tbl">
+      <tr><th>大問</th><th>テーマ</th></tr>
+      <tr><td>1(1)</td><td>割合と比（食塩水の濃度）</td></tr>
+      <tr><td>1(2)</td><td>規則性（200枚コイン裏返し）</td></tr>
+      <tr><td>2</td><td>速さ（自転車・電車・バス乗り継ぎ）</td></tr>
+      <tr><td>3</td><td>平面図形（台形の面積比 AD:BC=2:5）</td></tr>
+      <tr><td>4</td><td>調べ上げ（正方形板の長方形パズル）</td></tr>
+    </table>
+    <p style="font-weight:700;margin:12px 0 6px">■ 2024年度</p>
+    <table class="tbl">
+      <tr><th>大問</th><th>テーマ</th></tr>
+      <tr><td>1(1)</td><td>整数（176以下の倍数・ベン図）</td></tr>
+      <tr><td>1(2)</td><td>仕事算（3つの管の給排水）</td></tr>
+      <tr><td>2</td><td>図形（直角三角形3:4:5含む線分比）</td></tr>
+      <tr><td>3</td><td>速さ（3人が異なるコースを周回）</td></tr>
+      <tr><td>4</td><td>場合の数（数の並べ替えと点数計算）</td></tr>
+    </table>
+    <p style="font-weight:700;margin:12px 0 6px">■ 2023年度</p>
+    <table class="tbl">
+      <tr><th>大問</th><th>テーマ</th></tr>
+      <tr><td>1(1)</td><td>整数（2023の約数・7の倍数）</td></tr>
+      <tr><td>1(2)</td><td>場合の数（兄弟の部屋配置）</td></tr>
+      <tr><td>2</td><td>仕事算（入場窓口の処理能力）</td></tr>
+      <tr><td>3</td><td>図形（相似を利用した面積計算）</td></tr>
+      <tr><td>4</td><td>規則性（ボール蹴りの周期性）</td></tr>
+    </table>
+    <p style="font-weight:700;margin:12px 0 6px">■ 2022年度</p>
+    <table class="tbl">
+      <tr><th>大問</th><th>テーマ</th></tr>
+      <tr><td>1(1)</td><td>整数（1〜9の最小公倍数）</td></tr>
+      <tr><td>1(2)</td><td>整数応用（はがきと切手の枚数）</td></tr>
+      <tr><td>2</td><td>図形（三角形・五角形の面積比）</td></tr>
+      <tr><td>3</td><td>場合の数（7つの重さから3つ特定）</td></tr>
+      <tr><td>4</td><td>速さ（円周上P・Qの位置関係）</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<div class="card" data-search="算数 10年 分野 出現 頻度 図形 速さ 規則性">
+  <div class="card-header"><h3><span class="tag tag-sansu">算数</span> 10年間の分野別出現頻度</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>年度</th><th>図形</th><th>速さ</th><th>割合</th><th>規則性</th><th>場合の数</th><th>整数</th></tr>
+      <tr><td>2025</td><td>Q3</td><td>Q2</td><td>Q1</td><td>Q1</td><td>—</td><td>—</td></tr>
+      <tr><td>2024</td><td>Q2</td><td>Q3</td><td>Q1</td><td>Q4</td><td>—</td><td>—</td></tr>
+      <tr><td>2023</td><td>Q3</td><td>—</td><td>—</td><td>Q4</td><td>Q2</td><td>Q1</td></tr>
+      <tr><td>2022</td><td>Q2</td><td>Q4</td><td>—</td><td>—</td><td>Q3</td><td>Q1</td></tr>
+      <tr><td>2021</td><td>Q3</td><td>Q2</td><td>—</td><td>Q4</td><td>—</td><td>Q1</td></tr>
+      <tr><td>2020</td><td>Q2</td><td>—</td><td>Q1</td><td>Q4</td><td>Q3</td><td>—</td></tr>
+      <tr><td>2019</td><td>Q2</td><td>Q3</td><td>—</td><td>Q4</td><td>—</td><td>Q1</td></tr>
+      <tr><td>2018</td><td>Q1</td><td>Q2</td><td>Q3</td><td>Q4</td><td>—</td><td>—</td></tr>
+      <tr><td>2017</td><td>Q2</td><td>Q3</td><td>—</td><td>Q4</td><td>—</td><td>Q1</td></tr>
+      <tr><td>2016</td><td>Q1</td><td>Q3</td><td>Q2</td><td>Q4</td><td>—</td><td>—</td></tr>
+      <tr style="font-weight:700"><td>合計</td><td>10</td><td>7</td><td>5</td><td>8</td><td>3</td><td>4</td></tr>
+    </table>
+    <p style="margin-top:8px;color:var(--sansu)">🔑 図形は毎年必出。規則性はほぼ毎年。速さは7/10年。</p>
+  </div></div>
+</div>
+
+<div class="card" data-search="算数 パターン 解法 図形 相似 水深 調べ上げ 速さ 周回 必修 4大">
+  <div class="card-header"><h3><span class="tag tag-sansu">算数</span> 必修4大解法パターン</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <p style="font-weight:700;margin-bottom:8px;color:var(--sansu)">■ パターン1：図形 × 相似・面積比</p>
+    <p><strong>該当問題</strong>：No.045, 047, 050, 051, 055, 058, 061, 063</p>
+    <ul>
+      <li>補助線→相似な三角形（砂時計型・ピラミッド型）を発見</li>
+      <li>相似比の2乗＝面積比で決定</li>
+      <li>等高な三角形の面積比＝底辺の比を利用</li>
+    </ul>
+    <p style="font-weight:700;margin:12px 0 8px;color:var(--sansu)">■ パターン2：立体図形 × 水深グラフ</p>
+    <p><strong>該当問題</strong>：No.002, 087, 088, 092, 017</p>
+    <ul>
+      <li>体積＝底面積×高さの基本原理</li>
+      <li>水深グラフの傾き＝底面積の逆比</li>
+      <li>おもりによる変化率の変化を正確に読み取る</li>
+    </ul>
+    <p style="font-weight:700;margin:12px 0 8px;color:var(--sansu)">■ パターン3：調べ上げ × 論理的推理</p>
+    <p><strong>該当問題</strong>：No.106, 109, 126, 127, 128</p>
+    <ul>
+      <li>複数の変数整理→「表」を作成</li>
+      <li>条件を一つずつ検証→組み合わせを絞り込み</li>
+      <li>全パターン網羅＋重複・漏れなしを記述で証明</li>
+    </ul>
+    <p style="font-weight:700;margin:12px 0 8px;color:var(--sansu)">■ パターン4：速さ × 比・周回</p>
+    <p><strong>該当問題</strong>：No.066, 077, 080, 085</p>
+    <ul>
+      <li>速さの比・時間の比で距離の関係を計算</li>
+      <li>「距離の和/差÷相対速度」を繰り返し適用</li>
+      <li>速度変化・休憩を含む複雑な条件を正確に立式</li>
+    </ul>
+    <p style="margin-top:10px;color:var(--accent)">⚠️ 完答できなくても、図や表で思考を整理した痕跡を残せば部分点が取れる</p>
+  </div></div>
+</div>
+</div>
+
+<!-- ========== 理科 ========== -->
+<div class="panel" id="panel-rika">
+<div class="stat-row">
+  <div class="stat"><div class="stat-val" style="color:var(--rika)">40</div><div class="stat-label">分 / 60点</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--rika)">3-4</div><div class="stat-label">大問</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--rika)">毎年</div><div class="stat-label">おみやげ問題</div></div>
+</div>
+
+<div class="card open" data-search="理科 おみやげ 実物 観察 素材 一覧">
+  <div class="card-header"><h3><span class="tag tag-rika">理科</span> おみやげ問題一覧</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>年度</th><th>素材</th><th>背後の概念</th></tr>
+      <tr><td>2025</td><td>実物の葉（イチョウ等）</td><td>精密スケッチ・形態観察</td></tr>
+      <tr><td>2024</td><td>3種類の葉</td><td>葉の分類・観察と描画</td></tr>
+      <tr><td>2023</td><td>カラビナ</td><td>開閉機構・バネの復元力</td></tr>
+      <tr><td>2022</td><td>針金4本</td><td>重心・てこの原理</td></tr>
+      <tr><td>2021</td><td>縞模様シート</td><td>視覚効果・幾何学的規則性</td></tr>
+      <tr><td>2020</td><td>リング磁石</td><td>磁気の性質・N/S極の分類</td></tr>
+      <tr><td>2019</td><td>紙テープの「桑」</td><td>折り目の規則性・幾何学</td></tr>
+      <tr><td>2018</td><td>チャック付き袋</td><td>非対称ロック機構</td></tr>
+      <tr><td>2017</td><td>2種類のネジ</td><td>構造の比較観察・作図</td></tr>
+      <tr><td>2016</td><td>星座早見盤</td><td>天体の運行・経度補正</td></tr>
+    </table>
+    <p style="margin-top:8px;color:var(--rika)">🔑 知識ではなく「ありのまま観察→構造から原理を推論→図と言葉で説明」</p>
+  </div></div>
+</div>
+
+<div class="card" data-search="理科 分野 物理 化学 生物 地学 比率">
+  <div class="card-header"><h3><span class="tag tag-rika">理科</span> 分野別傾向</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>分野</th><th>比率</th><th>頻出内容</th></tr>
+      <tr><td><strong>物理</strong></td><td>31%</td><td>てこ・力学、熱、光・音、道具の仕組み</td></tr>
+      <tr><td><strong>生物</strong></td><td>25%</td><td>生態系、植物、動物の行動、人体</td></tr>
+      <tr><td><strong>地学</strong></td><td>25%</td><td>天体、地層・岩石、火山、気象</td></tr>
+      <tr><td><strong>化学</strong></td><td>19%</td><td>水溶液、溶解度、気体、状態変化</td></tr>
+    </table>
+  </div></div>
+</div>
+
+<div class="card" data-search="理科 スケッチ 作図 記述 観察 コツ">
+  <div class="card-header"><h3><span class="tag tag-rika">理科</span> 観察・記述の鉄則</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ul>
+      <li><strong>実線と点線</strong>：見えている部分は実線、隠れている部分は点線</li>
+      <li><strong>二方向の視点</strong>：上から見た図と横から見た図の両方を描く</li>
+      <li><strong>基準の明示</strong>：「何に対して」斜め/垂直かを明記</li>
+      <li><strong>知識より観察</strong>：「知っていること」ではなく「見えたこと」を書く</li>
+      <li><strong>構造→機能</strong>：「この形だから→こう動く」の因果関係で説明</li>
+    </ul>
+  </div></div>
+</div>
+
+<div class="card" data-search="理科 おみやげ 攻略 チェックリスト スケッチ 作図 ルール 詳細 手順">
+  <div class="card-header"><h3><span class="tag tag-rika">理科</span> おみやげ攻略チェックリスト</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <p style="font-weight:700;margin-bottom:8px;color:var(--rika)">■ 作図・スケッチの6大ルール</p>
+    <ol>
+      <li><strong>実線と点線の使い分け</strong>：見えている部分＝実線、隠れている部分＝点線（破線）。折りは山折り＝二重線、谷折り＝点線</li>
+      <li><strong>二方向からの視点</strong>：「上から見た図」と「横から見た図」をセットで描く。断面図も有効</li>
+      <li><strong>基準を明確にした位置表現</strong>：「地面に対して垂直」「指先に対して斜め」など、基準を明記する</li>
+      <li><strong>矢印で動的情報を付加</strong>：力の方向、部品の動く方向を矢印で示す</li>
+      <li><strong>美術的技巧は不要</strong>：陰影・色塗り不要。シンプルな線で正確に描く</li>
+      <li><strong>実物の個別特徴を描く</strong>：教科書的な「綺麗な形」ではなく、虫食い跡や脈の入り方など「ありのまま」を写し取る</li>
+    </ol>
+    <p style="font-weight:700;margin:12px 0 8px;color:var(--rika)">■ 本番のアプローチ手順</p>
+    <ol>
+      <li><strong>まず全体を観察</strong>（30秒）：素材の大きさ・形・素材感を把握</li>
+      <li><strong>操作してみる</strong>（1分）：振る・曲げる・重ねる・回転させる</li>
+      <li><strong>構造を分解</strong>（2分）：部品ごとの役割と関係を特定</li>
+      <li><strong>図を描く</strong>（3分）：上記6大ルールに従ってスケッチ</li>
+      <li><strong>言葉で説明</strong>（4分）：「この構造だから→こう機能する」の因果で記述</li>
+    </ol>
+    <p style="font-weight:700;margin:12px 0 8px;color:var(--rika)">■ やってはいけないこと</p>
+    <ul>
+      <li>❌ 知識で知っていることを描く（実物を見ずに描く）</li>
+      <li>❌ クモの巣を同心円だと思い込んで描く（2016年で警告）</li>
+      <li>❌ 一方向だけの図で済ませる</li>
+      <li>❌ 「傾いている」だけで基準を書かない</li>
+      <li>❌ 線の太さにこだわって時間を浪費する（1本線でOK）</li>
+    </ul>
+  </div></div>
+</div>
+
+<div class="card" data-search="理科 年度 おみやげ 求められる力 スキル 思考力">
+  <div class="card-header"><h3><span class="tag tag-rika">理科</span> おみやげ問題：年度別の求められる力</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>年度</th><th>素材</th><th>求められる核心スキル</th></tr>
+      <tr><td>2025</td><td>実物の葉</td><td>精密スケッチ＋文字なしで特徴を図だけで伝える</td></tr>
+      <tr><td>2024</td><td>3種類の葉</td><td>複数対象の比較観察と分類</td></tr>
+      <tr><td>2023</td><td>カラビナ</td><td>「戻る仕組み」と「閉じられる仕組み」の両立を構造から説明</td></tr>
+      <tr><td>2022</td><td>針金4本</td><td>重心の推測＋てこの原理を適用した計算と考察</td></tr>
+      <tr><td>2021</td><td>縞模様シート</td><td>回転/スライド操作による図形変化の周期性発見</td></tr>
+      <tr><td>2020</td><td>リング磁石</td><td>試行錯誤によるパターン分類＋立体的な図で説明</td></tr>
+      <tr><td>2019</td><td>紙テープ「桑」</td><td>折り線の規則性・周期性の発見＋作図</td></tr>
+      <tr><td>2018</td><td>チャック袋</td><td>開けやすさの非対称性→断面構造から原理説明</td></tr>
+      <tr><td>2017</td><td>2種類のネジ</td><td>微細な違いの比較→正確な作図と立体表現</td></tr>
+      <tr><td>2016</td><td>星座早見盤</td><td>経度差の補正計算＋実用的な操作</td></tr>
+    </table>
+    <p style="margin-top:8px;color:var(--rika)">🔑 2024-2025年連続で葉の実物観察→「ありのまま描く」原点回帰の傾向</p>
+  </div></div>
+</div>
+</div>
+
+<!-- ========== 社会 ========== -->
+<div class="panel" id="panel-shakai">
+<div class="stat-row">
+  <div class="stat"><div class="stat-val" style="color:var(--shakai)">50</div><div class="stat-label">分 / 60点</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--shakai)">7-8</div><div class="stat-label">大問</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--shakai)">80%+</div><div class="stat-label">記述比率</div></div>
+</div>
+
+<div class="card open" data-search="社会 出題傾向 テーマ 最重要 頻出">
+  <div class="card-header"><h3><span class="tag tag-shakai">社会</span> Aランク頻出テーマ</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>#</th><th>テーマ</th><th>出題</th></tr>
+      <tr><td>A1</td><td><strong>現代社会の構造的課題と論述</strong>（WLB・少子化・格差）</td><td>7回</td></tr>
+      <tr><td>A2</td><td><strong>近世〜近代の都市・流通・交通</strong></td><td>6回</td></tr>
+      <tr><td>A3</td><td><strong>日本の近代化と産業変革</strong></td><td>5回</td></tr>
+      <tr><td>A4</td><td><strong>民主主義と政治参加の歴史</strong></td><td>4回</td></tr>
+      <tr><td>A5</td><td><strong>災害・防災と都市環境</strong></td><td>4回</td></tr>
+    </table>
+    <p style="margin-top:8px"><strong>核心：</strong>「<span class="hl">歴史的・地理的視点に基づく、現代社会課題の論理的考察力</span>」</p>
+  </div></div>
+</div>
+
+<div class="card" data-search="社会 記述 論述 型 比較 因果 統合 テクニック">
+  <div class="card-header"><h3><span class="tag tag-shakai">社会</span> 論理構成の3パターン</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ol>
+      <li><strong>差異・対比パターン</strong>：「資料1は〜だが、資料2は〜である」<br>例：植木枝盛の私擬憲法と大日本帝国憲法の比較</li>
+      <li><strong>因果関係の連鎖パターン</strong>：「原因→結果」の順序で記述<br>例：治水工事→河口の堆積→海岸線の後退</li>
+      <li><strong>社会背景への統合パターン</strong>：データを時代背景に位置づけ<br>例：塩輸入増加→高度経済成長→重化学工業の発展</li>
+    </ol>
+  </div></div>
+</div>
+
+<div class="card" data-search="社会 資料 グラフ 地図 読み取り 分析">
+  <div class="card-header"><h3><span class="tag tag-shakai">社会</span> 資料読み取りの鉄則</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ul>
+      <li><strong>グラフ</strong>：短期変動でなく<span class="hl">長期的な傾向</span>を把握。転換点の年代を特定</li>
+      <li><strong>地図</strong>：地形的特徴（高低差・海岸線・河川）と歴史的役割を関連付け</li>
+      <li><strong>史料</strong>：書かれていないことから政治的規制を推測</li>
+      <li><strong>表</strong>：順位の入れ替わりから産業構造の変化を読み取る</li>
+    </ul>
+    <p style="margin-top:8px;color:var(--accent)">⚠️ 「資料によると」で必ず資料との結びつきを示す</p>
+  </div></div>
+</div>
+
+<div class="card" data-search="社会 年度別 テーマ 一覧 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025">
+  <div class="card-header"><h3><span class="tag tag-shakai">社会</span> 年度別テーマ一覧（16年分）</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>年度</th><th>テーマ</th></tr>
+      <tr><td>2025</td><td>江戸期経済・輸送業・地域流通</td></tr>
+      <tr><td>2024</td><td>労働環境・ジェンダー・新技術</td></tr>
+      <tr><td>2023</td><td>都市化・水害・人口課題</td></tr>
+      <tr><td>2022</td><td>教育制度・学校制度</td></tr>
+      <tr><td>2021</td><td>情報とメディア（瓦版→新聞→ネット）</td></tr>
+      <tr><td>2020</td><td>治水事業と災害対策</td></tr>
+      <tr><td>2019</td><td>国際交流と人の移動（海運・漂流民）</td></tr>
+      <tr><td>2018</td><td>銅資源と技術革新（別子銅山）</td></tr>
+      <tr><td>2017</td><td>塩の生産と専売制度</td></tr>
+      <tr><td>2016</td><td>民主政治と参政権</td></tr>
+      <tr><td>2015</td><td>日本の交通網の発達</td></tr>
+      <tr><td>2014</td><td>日本の気候と地球環境問題</td></tr>
+      <tr><td>2013</td><td>戸籍制度と国際化</td></tr>
+      <tr><td>2012</td><td>衣服の材料と繊維産業</td></tr>
+      <tr><td>2011</td><td>宗教と政治・社会との関係</td></tr>
+      <tr><td>2010</td><td>エネルギー源としての石炭と石油</td></tr>
+    </table>
+    <p style="margin-top:8px;color:var(--shakai)">🔑 毎年「一つの大きなテーマ」を歴史・地理・公民の視点から統合的に掘り下げる</p>
+  </div></div>
+</div>
+
+<div class="card" data-search="社会 失点 パターン ミス 事故 予防 対策">
+  <div class="card-header"><h3><span class="tag tag-shakai">社会</span> 5大失点パターン</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ol>
+      <li><strong>「問い」を読まず知識を並べる</strong>：設問の意図を無視 → <span class="hl2">設問を3回読み「何が問われるか」メモ</span></li>
+      <li><strong>資料に基づかない思い込み</strong>：グラフ無視で解答 → <span class="hl2">数値を声に出して確認</span></li>
+      <li><strong>因果関係の説明不足</strong>：結論だけ書く → <span class="hl2">「なぜなら」を必ず含める</span></li>
+      <li><strong>比較・対照の視点欠落</strong>：片方だけ説明 → <span class="hl2">「一方で〜、これに対して〜」を使う</span></li>
+      <li><strong>語彙の混同</strong>：難民と移民を混同 → <span class="hl2">重要用語は定義を整理してからノートに記録</span></li>
+    </ol>
+  </div></div>
+</div>
+
+<div class="card" data-search="社会 解答例 模範 データベース 年度別 記述 論述">
+  <div class="card-header"><h3><span class="tag tag-shakai">社会</span> 最終問の解答例DB（タップで展開）</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <p style="color:var(--accent3);margin-bottom:10px">💡 各年度の最終問題（最も配点が高い長文論述）のキーポイント</p>
+    <div class="kanji-list">
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q"><strong>2025 問8</strong> 輸送労働者の幸福追求</span><span class="kq-a">→ 通販普及で荷物増加＋過労による健康被害＋転職困難で過大要求を受入れ</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q"><strong>2024 問7</strong> ワーク・ライフ・バランス</span><span class="kq-a">→ WLBで家族・地域との関わり増加→災害時の協力関係＋高齢者孤立防止</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q"><strong>2023 問6</strong> 都市型水害の原因</span><span class="kq-a">→ ゲリラ豪雨増加＋コンクリート舗装で浸透不可→排水管に雨水集中→氾濫</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q"><strong>2022 問7</strong> 教育格差と対策</span><span class="kq-a">→ 家計面で進学先が限られる人→奨学金制度の充実＋高校無償化</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q"><strong>2021 問7</strong> 新聞の現代的価値</span><span class="kq-a">→ 記者の取材に基づく信頼性＋他紙との比較可能＋紙媒体の保存性</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q"><strong>2020 問7</strong> ハザードマップの活用</span><span class="kq-a">→ 浸水範囲と水深の確認＋避難経路確認＋防災さんぽの有効性</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q"><strong>2019 問7</strong> 出国者数増加の理由</span><span class="kq-a">→ 高度成長で所得増加＋1970年代の円高＋1960年代の渡航制限緩和が複合</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q"><strong>2018 問7</strong> 技術普及の社会的影響</span><span class="kq-a">→ 電信電話で通信直接化／電気製品で女性社会進出／鉄道電化で都市圏充実</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q"><strong>2017 問7</strong> 塩輸入急増の理由</span><span class="kq-a">→ 高度経済成長＋ソーダ工業用の需要急増（食用を超える工業的用途）</span></div>
+      <div class="kq" onclick="this.classList.toggle('show')"><span class="kq-q"><strong>2016 問8</strong> 投票率低下の危険性</span><span class="kq-a">→ 国民主権の形骸化＋若年層の利害が政治に反映されにくくなる</span></div>
+    </div>
+    <p style="margin-top:10px;color:var(--shakai)">🔑 全年度の最終問共通パターン：<strong>現代課題＋歴史的背景＋複数視点からの論述</strong></p>
+  </div></div>
+</div>
+
+<div class="card" data-search="社会 知識 語句 キーワード 暗記 用語">
+  <div class="card-header"><h3><span class="tag tag-shakai">社会</span> 高得点キーワード集（時代別）</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>時代</th><th>必須キーワード</th></tr>
+      <tr><td><strong>江戸</strong></td><td>鎖国、商品作物、参勤交代、城下町、三都経済</td></tr>
+      <tr><td><strong>幕末・明治</strong></td><td>開国、産業革命、紡績業、鉄道網、地租改正、富国強兵</td></tr>
+      <tr><td><strong>大正・昭和</strong></td><td>大正デモクラシー、普通選挙、恐慌、軍国主義</td></tr>
+      <tr><td><strong>高度成長</strong></td><td>重化学工業化、都市集中、公害、所得倍増</td></tr>
+      <tr><td><strong>現代</strong></td><td>少子高齢化、WLB、非正規雇用、ジェンダー、情報リテラシー</td></tr>
+    </table>
+    <p style="margin:10px 0"><strong>記述で差がつく構造キーワード：</strong></p>
+    <ul>
+      <li>正規雇用 / 非正規雇用 / 不安定な就業</li>
+      <li>女性の社会進出 / 育児と仕事の両立</li>
+      <li>過疎化 / 都市への集中 / 地方創生</li>
+      <li>国民主権 / 基本的人権 / 三権分立</li>
+    </ul>
+  </div></div>
+</div>
+</div>
+
+<!-- ========== 2E対応 ========== -->
+<div class="panel" id="panel-twoe">
+<div class="stat-row">
+  <div class="stat"><div class="stat-val" style="color:var(--twoe)">136</div><div class="stat-label">VCI</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--twoe)">127</div><div class="stat-label">FRI</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--accent)">94</div><div class="stat-label">WMI</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--accent)">83</div><div class="stat-label">PSI</div></div>
+</div>
+
+<div class="card open" data-search="2E WISC 強み 弱み VCI FRI WMI PSI 武蔵 相性">
+  <div class="card-header"><h3><span class="tag" style="background:rgba(255,138,101,0.15);color:var(--twoe)">2E</span> 武蔵との相性</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <p><strong>✅ 活かせる強み：</strong></p>
+    <ul>
+      <li><strong>VCI 136</strong> → 国語の記述、社会の論述で圧倒的強み</li>
+      <li><strong>FRI 127</strong> → 算数の規則性発見、理科の原理推論に直結</li>
+      <li>武蔵は「思考の深さ」を評価 → PSIの低さは不利にならない</li>
+    </ul>
+    <p style="margin-top:10px"><strong>⚠️ 注意が必要な点：</strong></p>
+    <ul>
+      <li><strong>PSI 83</strong> → 時間制限が厳しい。部分点戦略を徹底</li>
+      <li><strong>WMI 94</strong> → 複雑な条件整理で負荷↑。図・表で外部化</li>
+    </ul>
+  </div></div>
+</div>
+
+<div class="card" data-search="2E 対策 外部化 図 表 ルーティン 手順">
+  <div class="card-header"><h3><span class="tag" style="background:rgba(255,138,101,0.15);color:var(--twoe)">2E</span> 最小ルール（まずこれだけ）</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ol>
+      <li><strong>条件を丸で囲む</strong> → ミスが半分になる</li>
+      <li><strong>図は必ず描く</strong> → 速さはダイヤグラム、図形は補助線、調べ上げは表</li>
+      <li><strong>比を使う</strong> → 計算が複雑になったら比で処理</li>
+      <li><strong>途中式を残す</strong> → 「式や考え方を書きなさい」は部分点のチャンス</li>
+      <li><strong>15分で区切る</strong> → 1問に時間をかけすぎない</li>
+    </ol>
+  </div></div>
+</div>
+
+<div class="card" data-search="2E 休薬日 疲労 集中 ADHD 薬">
+  <div class="card-header"><h3><span class="tag" style="background:rgba(255,138,101,0.15);color:var(--twoe)">2E</span> 状態別対応</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <table class="tbl">
+      <tr><th>状態</th><th>対応</th></tr>
+      <tr><td>やる気0</td><td>「5分だけ」「1問だけ」でタイマーセット</td></tr>
+      <tr><td>過集中</td><td>タイマー25分で強制終了。部分点でOK</td></tr>
+      <tr><td>休薬日</td><td>基礎問題・復習のみ。新問は解かない</td></tr>
+      <tr><td>不安・焦り</td><td>「部分点を積み上げる」を合言葉に</td></tr>
+      <tr><td>集中切れ</td><td>短時間休憩→図を描くだけでもOK</td></tr>
+    </table>
+  </div></div>
+</div>
+</div>
+
+<!-- ========== 格言 ========== -->
+<div class="panel" id="panel-msg">
+
+<div class="card open" data-search="格言 本番 合言葉 メンタル">
+  <div class="card-header"><h3>🎯 本番の合言葉（30秒で思い出す）</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ol>
+      <li style="font-size:1rem;font-weight:700;color:var(--accent2)">「条件→図→式→計算」この順番を守ればミスが減る</li>
+      <li style="font-size:1rem;font-weight:700;color:var(--sansu)">「比で処理」計算が複雑になったら比を使う</li>
+      <li style="font-size:1rem;font-weight:700;color:var(--rika)">「図を描く」頭だけで考えず必ず図や表を描く</li>
+      <li style="font-size:1rem;font-weight:700;color:var(--kokugo)">「部分点狙い」完答できなくても考え方を書けば点がもらえる</li>
+      <li style="font-size:1rem;font-weight:700;color:var(--shakai)">「時間配分」大問1は10分、標準20分、難問15分</li>
+    </ol>
+  </div></div>
+</div>
+
+<div class="card" data-search="格言 算数 攻略 調べ上げ 探偵">
+  <div class="card-header"><h3>📐 算数の攻略フレーズ</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ul>
+      <li>「<strong>調べ上げは探偵モード</strong>」ルールを理解して、手を動かして証拠を集めよう</li>
+      <li>「<strong>部分点は宝箱</strong>」答えが違っても、考え方が合っていれば点がもらえる</li>
+      <li>「<strong>比は最強の武器</strong>」速さも図形も、比を使えば簡単に解ける</li>
+      <li>「<strong>表を作らないと漏れる</strong>」頭だけで考えると漏れや重複が起きる</li>
+      <li>「<strong>補助線に目的を持たせる</strong>」相似を作るため、と目的を決めてから引く</li>
+    </ul>
+  </div></div>
+</div>
+
+<div class="card" data-search="格言 国語 読み 記述 心情">
+  <div class="card-header"><h3>📖 国語の読みのコツ</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ul>
+      <li>「<strong>探偵モードで読む</strong>」本文の言葉を探すのではなく、筆者の意図を推理</li>
+      <li>「<strong>対比構造は両方説明</strong>」「一方で」「もう一方で」を両方書く</li>
+      <li>「<strong>心情は多層的に</strong>」「悲しい」ではなく「戸惑い」「うろたえる」</li>
+      <li>「<strong>比喩は具体化</strong>」「時間の檻」とは何か、文脈から説明</li>
+      <li>「<strong>筆者の独自定義を見落とさない</strong>」特別な意味で使われている言葉に注目</li>
+    </ul>
+  </div></div>
+</div>
+
+<div class="card" data-search="格言 理科 観察 おみやげ スケッチ">
+  <div class="card-header"><h3>🔬 理科の得点フレーズ</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ul>
+      <li>「<strong>おみやげ問題は観察が命</strong>」知識ではなく、見たままを描こう</li>
+      <li>「<strong>実験考察は結果から語る</strong>」知識ではなく、目の前の結果から説明</li>
+      <li>「<strong>構造→機能で説明</strong>」この形だから→こう動く、の因果で</li>
+    </ul>
+  </div></div>
+</div>
+
+<div class="card" data-search="格言 社会 資料 因果 多角的">
+  <div class="card-header"><h3>🌍 社会の覚え方コツ</h3><span class="card-toggle">▼</span></div>
+  <div class="card-body"><div class="card-inner">
+    <ul>
+      <li>「<strong>資料読解は情報整理</strong>」知識をそのまま使うのではなく、資料から読み取る</li>
+      <li>「<strong>因果関係は論理的に</strong>」「〜ため」「〜から」で理由を説明</li>
+      <li>「<strong>時事問題は歴史と結びつける</strong>」現代の課題を歴史的背景と結びつけて考察</li>
+      <li>「<strong>長期的な傾向を把握</strong>」グラフから数十年にわたる変化を読み取ろう</li>
+    </ul>
+  </div></div>
+</div>
+
+</div>
+
+<div class="spacer"></div>
+</div>
+
+<script>
+// Tab switching
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.panel');
+
+function switchTab(tabName) {
+  tabs.forEach(t => t.classList.remove('active'));
+  panels.forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+  document.getElementById(`panel-${tabName}`).classList.add('active');
+  try { localStorage.setItem('musashi_tab', tabName); } catch(e) {}
+}
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+// Restore last tab
+try {
+  const saved = localStorage.getItem('musashi_tab');
+  if (saved) switchTab(saved);
+} catch(e) {}
+
+// Card toggle
+document.querySelectorAll('.card-header').forEach(header => {
+  header.addEventListener('click', () => {
+    header.parentElement.classList.toggle('open');
+  });
+});
+
+// Search
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  if (!q) {
+    // Reset: show current tab, show all cards
+    document.querySelectorAll('.card').forEach(c => c.style.display = '');
+    panels.forEach(p => {
+      if (p.classList.contains('active')) return;
+      p.style.display = '';
+    });
+    return;
+  }
+  
+  // Search across all panels
+  let found = false;
+  panels.forEach(p => {
+    let panelHasMatch = false;
+    p.querySelectorAll('.card').forEach(card => {
+      const searchData = (card.dataset.search || '').toLowerCase();
+      const text = card.textContent.toLowerCase();
+      if (searchData.includes(q) || text.includes(q)) {
+        card.style.display = '';
+        card.classList.add('open');
+        panelHasMatch = true;
+        found = true;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+    if (panelHasMatch) {
+      p.style.display = 'block';
+    } else {
+      p.style.display = 'none';
+    }
+  });
+  
+  // Show all matching panels
+  if (found) {
+    tabs.forEach(t => t.classList.remove('active'));
+  }
+});
+
+// Clear search restores tab state
+searchInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    this.value = '';
+    this.dispatchEvent(new Event('input'));
+    try {
+      const saved = localStorage.getItem('musashi_tab') || 'senryaku';
+      switchTab(saved);
+    } catch(e2) {}
+  }
+});
+</script>
+</body>
+</html>
