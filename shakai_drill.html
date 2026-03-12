@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>社会 記述トレーニング — 武蔵攻略</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Shippori+Mincho:wght@400;700&display=swap');
+
+:root {
+  --bg:#111118; --bg2:#1a1a28; --bg3:#222235;
+  --card:#1e1e30; --card2:#262640;
+  --border:rgba(255,255,255,0.07);
+  --text:#e0e0ee; --dim:#7a7a9a; --dim2:#555570;
+  --gold:#ffd700; --yellow:#f7dc6f;
+  --green:#4ecdc4; --red:#e94560; --cyan:#00d4ff;
+  --purple:#bb86fc;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:15px}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* Header */
+.hdr{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,var(--bg2),rgba(26,26,40,0.95));backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 16px}
+.hdr-top{display:flex;align-items:center;justify-content:space-between}
+.hdr h1{font-family:'Shippori Mincho',serif;font-size:1.2rem;font-weight:700;color:var(--yellow)}
+.hdr-sub{font-size:0.65rem;color:var(--dim)}
+.hdr-back{background:none;border:1px solid var(--border);color:var(--dim);padding:4px 10px;border-radius:6px;font-size:0.7rem;cursor:pointer}
+.hdr-back:hover{border-color:var(--yellow);color:var(--yellow)}
+
+/* Progress bar */
+.prog-bar{height:3px;background:var(--bg);border-radius:2px;margin-top:8px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width 0.5s ease;border-radius:2px}
+
+/* Container */
+.ct{max-width:640px;margin:0 auto;padding:16px}
+
+/* Screens */
+.scr{display:none;animation:fadeIn 0.3s ease}
+.scr.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Home screen */
+.home-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
+.hs{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.hs-v{font-size:1.6rem;font-weight:900;font-family:'Shippori Mincho',serif}
+.hs-l{font-size:0.65rem;color:var(--dim);margin-top:4px}
+
+/* Question list */
+.q-list{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.q-item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all 0.2s;text-decoration:none;color:var(--text)}
+.q-item:hover{background:var(--card2);border-color:rgba(255,255,255,0.12)}
+.q-year{font-family:'Shippori Mincho',serif;font-size:1.1rem;font-weight:700;color:var(--yellow);flex-shrink:0;width:48px;text-align:center}
+.q-info{flex:1;min-width:0}
+.q-title{font-size:0.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-meta{font-size:0.7rem;color:var(--dim);margin-top:3px}
+.q-status{flex-shrink:0;font-size:0.8rem}
+
+/* Quiz screen */
+.q-header{margin-bottom:16px}
+.q-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:0.7rem;font-weight:700;background:rgba(247,220,111,0.12);color:var(--yellow);margin-bottom:8px}
+.q-text{font-size:0.95rem;line-height:1.9;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:16px}
+.q-text strong{color:var(--yellow)}
+
+/* Answer textarea */
+.ans-area{width:100%;min-height:140px;padding:14px;background:var(--bg2);border:2px solid var(--border);border-radius:10px;color:var(--text);font-size:0.9rem;line-height:1.8;font-family:'Noto Sans JP',sans-serif;resize:vertical;transition:border-color 0.2s}
+.ans-area:focus{outline:none;border-color:var(--cyan)}
+.ans-area::placeholder{color:var(--dim2)}
+.char-count{text-align:right;font-size:0.7rem;color:var(--dim);margin-top:4px}
+
+/* Buttons */
+.btn-row{display:flex;gap:8px;margin-top:16px}
+.btn{flex:1;padding:14px;border:none;border-radius:10px;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Noto Sans JP',sans-serif}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),#0088cc);color:#fff}
+.btn-primary:hover{filter:brightness(1.15)}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed}
+.btn-secondary{background:var(--card);color:var(--dim);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--yellow);color:var(--yellow)}
+.btn-skip{background:none;border:1px solid var(--border);color:var(--dim)}
+
+/* Speech input */
+.speech-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.speech-row .sec-label{margin:0;flex:1}
+.btn-mic{width:44px;height:44px;border-radius:50%;border:2px solid var(--border);background:var(--card);color:var(--dim);font-size:1.2rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.btn-mic:hover{border-color:var(--red);color:var(--red)}
+.btn-mic.recording{border-color:var(--red);color:#fff;background:var(--red);animation:micPulse 1s ease-in-out infinite}
+.btn-mic.recording::after{content:'';position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--red);animation:micRing 1.2s ease-out infinite;opacity:0}
+@keyframes micPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes micRing{0%{transform:scale(0.8);opacity:0.6}100%{transform:scale(1.4);opacity:0}}
+.speech-status{font-size:0.7rem;color:var(--dim);text-align:center;margin-bottom:4px;min-height:1.2em}
+.speech-status.active{color:var(--red);font-weight:500}
+.speech-hint{font-size:0.7rem;color:var(--dim2);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+
+/* Loading */
+.loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:32px;color:var(--dim)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Feedback card */
+.fb-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:16px}
+.fb-score{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.fb-ring{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;font-family:'Shippori Mincho',serif;flex-shrink:0}
+.fb-ring.s-high{background:rgba(78,205,196,0.15);color:var(--green);border:3px solid var(--green)}
+.fb-ring.s-mid{background:rgba(247,220,111,0.15);color:var(--yellow);border:3px solid var(--yellow)}
+.fb-ring.s-low{background:rgba(233,69,96,0.15);color:var(--red);border:3px solid var(--red)}
+.fb-summary{flex:1}
+.fb-label{font-size:0.75rem;color:var(--dim)}
+.fb-title{font-size:1rem;font-weight:700;margin-top:2px}
+
+.fb-section{margin-top:14px}
+.fb-section h4{font-size:0.8rem;font-weight:700;color:var(--cyan);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.fb-section p{font-size:0.85rem;line-height:1.7;color:var(--dim)}
+
+.fb-model{margin-top:16px;padding:14px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);border-radius:8px}
+.fb-model h4{font-size:0.8rem;font-weight:700;color:var(--gold);margin-bottom:6px}
+.fb-model p{font-size:0.85rem;line-height:1.7;color:var(--text)}
+
+/* API key setup */
+.api-setup{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin:16px 0}
+.api-setup h3{font-size:0.9rem;font-weight:700;margin-bottom:10px;color:var(--cyan)}
+.api-setup p{font-size:0.8rem;color:var(--dim);line-height:1.6;margin-bottom:10px}
+.api-input{width:100%;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85rem;font-family:monospace}
+.api-input:focus{outline:none;border-color:var(--cyan)}
+.api-saved{font-size:0.75rem;color:var(--green);margin-top:6px;display:none}
+
+/* Section label */
+.sec-label{font-size:0.7rem;font-weight:700;color:var(--dim);letter-spacing:0.15em;margin:20px 0 8px 2px}
+
+/* Year filter */
+.year-filter{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.yf-btn{padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.7rem;color:var(--dim);background:none;cursor:pointer;transition:all 0.2s}
+.yf-btn.active{border-color:var(--yellow);color:var(--yellow);background:rgba(247,220,111,0.08)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div>
+      <h1>🌍 社会 記述トレーニング</h1>
+      <div class="hdr-sub">武蔵中 過去問 AI採点付き</div>
+    </div>
+    <button class="hdr-back" onclick="goHome()">🏠 ハブ</button>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+</div>
+
+<div class="ct">
+  <!-- HOME -->
+  <div class="scr active" id="scrHome">
+    <div class="home-stats">
+      <div class="hs"><div class="hs-v" style="color:var(--yellow)" id="stTotal">0</div><div class="hs-l">問題数</div></div>
+      <div class="hs"><div class="hs-v" style="color:var(--green)" id="stDone">0</div><div class="hs-l">回答済</div></div>
+      <div class="hs"><div class="hs-v" style="color:var(--cyan)" id="stAvg">—</div><div class="hs-l">平均点</div></div>
+    </div>
+
+    <div class="api-setup" id="apiSetup">
+      <h3>🔑 Anthropic APIキー設定</h3>
+      <p>AI採点にはAPIキーが必要です。<br>キーは端末のlocalStorageにのみ保存され、外部には送信されません。</p>
+      <input type="password" class="api-input" id="apiKeyInput" placeholder="sk-ant-api03-...">
+      <div style="margin-top:8px">
+        <button class="btn btn-primary" style="padding:8px 16px;font-size:0.8rem" onclick="saveApiKey()">保存</button>
+      </div>
+      <div class="api-saved" id="apiSaved">✅ APIキーを保存しました</div>
+    </div>
+
+    <div class="sec-label">📝 年度で絞り込み</div>
+    <div class="year-filter" id="yearFilter"></div>
+
+    <div class="sec-label">📋 記述問題一覧</div>
+    <div class="q-list" id="qList"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="scr" id="scrQuiz">
+    <div class="q-header">
+      <div class="q-badge" id="qBadge"></div>
+      <div style="font-size:0.75rem;color:var(--dim);margin-bottom:6px" id="qTheme"></div>
+    </div>
+    <div class="q-text" id="qText"></div>
+
+    <div class="speech-row">
+      <div class="sec-label" style="margin:0">✍️ あなたの解答</div>
+      <button class="btn-mic" id="btnMic" onclick="toggleSpeech()" title="音声入力">🎤</button>
+    </div>
+    <div class="speech-status" id="speechStatus"></div>
+    <div class="speech-hint" id="speechHint">💡 マイクボタンを押して話すと、音声が文字に変換されます</div>
+    <textarea class="ans-area" id="ansArea" placeholder="ここに記述してください。音声入力もできます 🎤"></textarea>
+    <div class="char-count"><span id="charNum">0</span>字</div>
+
+    <div class="btn-row">
+      <button class="btn btn-skip" onclick="showScreen('scrHome')">← 戻る</button>
+      <button class="btn btn-secondary" onclick="showModel()">模範解答を見る</button>
+      <button class="btn btn-primary" id="btnGrade" onclick="gradeAnswer()">AI採点 🤖</button>
+    </div>
+
+    <div id="fbArea"></div>
+  </div>
+</div>
+
+<script>
+// =============================================
+// 問題データベース（武蔵中 社会 2016-2025 記述式）
+// =============================================
+const QUESTIONS = [
+  // 2025
+  {id:"25_1",year:2025,theme:"江戸期経済・輸送業",qnum:"問1",
+   q:"武蔵国と下総国を結ぶ地点が交通の要衝となった理由を、地理的特徴に基づいて説明しなさい。",
+   model:"隅田川や利根川などの河川と武蔵国と下総国を結ぶ道が交差しており、陸運と水運の両方使える土地だったから。",
+   rubric:"河川（隅田川・利根川）の存在、陸運と水運の交差、交通の要衝としての地理的利点の3要素",type:"因果"},
+  {id:"25_3",year:2025,theme:"江戸期経済・輸送業",qnum:"問3",
+   q:"江戸の物資輸送において、大きい船と小さい船はそれぞれどのような役割を果たしていましたか。",
+   model:"大きい船：海を通じて地方から江戸まで物資を運ぶ役割。一度にたくさんの物資を運び込める。小さい船：大きな船が運び込んだ物資を受け取って市中に運ぶ役割。川や運河に入って物資を市街地まで運べる。",
+   rubric:"大型船＝海運・大量輸送、小型船＝河川・市中配送の役割分担の2要素",type:"比較"},
+  {id:"25_8",year:2025,theme:"現代の労働問題",qnum:"問8",
+   q:"(あ)現代の運輸業が直面している課題、(い)労働者が現状を変えられない理由、(う)その状況が抱えるリスクをそれぞれ説明しなさい。",
+   model:"(あ)通販普及で輸送する荷物が増え再配達の手間も増加。(い)収入を増やすため仕事を増やそうとしたり、転職に自信が持てずにいる。(う)過労による健康被害で職を失う可能性があり、雇う側の過大な要求を受け入れてしまう。",
+   rubric:"(あ)通販普及＋荷物増加＋再配達、(い)収入増への欲求＋転職困難、(う)過労リスク＋労使の力関係の不均衡",type:"統合"},
+
+  // 2024
+  {id:"24_3",year:2024,theme:"労働環境・ジェンダー",qnum:"問3",
+   q:"洗濯機の普及が人々の生活にどのような変化をもたらしたか説明しなさい。",
+   model:"洗濯機を購入することで、時間や労力のかかる手作業を減らすことができた。また時間の短縮によって洗濯に使用していた時間を別の目的で利用でき、趣味が広がるなど自由な時間が確保できて生活が豊かになった。",
+   rubric:"労力軽減＋時間短縮＋自由時間の創出→生活の質向上の因果連鎖",type:"因果"},
+  {id:"24_6",year:2024,theme:"労働環境・ジェンダー",qnum:"問6",
+   q:"(あ)男女の労働時間についてグラフから読み取れることと、(い)男女の家事分担を改善するための制度を説明しなさい。",
+   model:"(あ)総労働時間は男女間に大きな差はないが、男性の家事時間は少なく女性がはるかに多い。(い)男性の出生時育児休業制度や育児休業の分割取得の仕組み。",
+   rubric:"(あ)総労働時間の男女差なし＋家事時間の偏り、(い)具体的な制度名の提示",type:"統合"},
+  {id:"24_7",year:2024,theme:"現代社会の課題",qnum:"問7",
+   q:"ワーク・ライフ・バランスを大事にすることが社会にどのような良い影響を与えるか説明しなさい。",
+   model:"家族や地域と関わる時間を増やすことができる。とくに地域との関わりは、災害時に協力し合える関係をつくったり、単身高齢者の孤立を防いだりするために重要である。",
+   rubric:"家族・地域との関わり増加＋具体例（災害時の協力 or 高齢者孤立防止）",type:"因果"},
+
+  // 2023
+  {id:"23_2",year:2023,theme:"都市化・水害",qnum:"問2",
+   q:"本所・深川に上水を引くことが困難だった理由を、地理的な特徴に基づいて説明しなさい。",
+   model:"海の近くに位置しているために井戸水に海水が混ざる可能性が高く飲用に適さなかったことと、一帯は平坦な低地になっており、土地の高低差を利用して水を流す方法の上水を引くのが困難だったこと。",
+   rubric:"海水混入リスク＋低地で高低差なしの2要因",type:"因果"},
+  {id:"23_6",year:2023,theme:"都市化・水害",qnum:"問6",
+   q:"現代の都市で水害が頻発するようになった理由を説明しなさい。",
+   model:"短時間で大雨が突然降るゲリラ豪雨が増えて、道や川がコンクリート舗装された都市では土に水がしみこまず、排水管で雨水が川に集中することによる氾濫や浸水など都市型水害が頻繁に起こるようになった。",
+   rubric:"ゲリラ豪雨の増加＋コンクリート舗装→浸透不可＋排水集中→氾濫の因果連鎖",type:"因果"},
+
+  // 2022
+  {id:"22_4",year:2022,theme:"教育制度",qnum:"問4",
+   q:"明治時代の女子教育の内容から、当時の女性にどのような役割が求められていたか説明しなさい。",
+   model:"高等女学校で家事や裁縫などが設置されていることや、男子よりも進学や就職の機会が少なく限られていることから、当時の女性には社会進出ではなく、家事や育児を主とする良妻賢母となることが求められていた。",
+   rubric:"家事・裁縫の教育内容＋進学機会の制限→良妻賢母像の要求",type:"因果"},
+  {id:"22_7",year:2022,theme:"教育制度",qnum:"問7",
+   q:"教育格差の問題に対して、現在どのような対策が行われているか説明しなさい。",
+   model:"家計の面などで進学先が限られ、受けたい教育を受けることのできない人たちの数は少なくない。そのような人に対する奨学金制度の充実や、高等学校の無償化が図られている。",
+   rubric:"経済的要因による格差の指摘＋具体的対策（奨学金 or 無償化）",type:"因果"},
+
+  // 2021
+  {id:"21_5",year:2021,theme:"情報とメディア",qnum:"問5",
+   q:"戦時中、日本政府は新聞報道をどのように利用しようとしましたか。具体的に説明しなさい。",
+   model:"戦争への否定的な報道や政府を否定する報道を取り締まり、日本が不利であった実際の戦況を伝えることを規制し、日本は勝ち続けているとする報道により国民の戦意を維持しようとした。",
+   rubric:"否定的報道の規制＋戦況の隠蔽＋国民の戦意維持の3要素",type:"因果"},
+  {id:"21_7",year:2021,theme:"情報とメディア",qnum:"問7",
+   q:"インターネットが普及した現代においても、新聞が持つ価値を説明しなさい。",
+   model:"新聞は記者が自分で確かめて書く記事が多く信頼性が高い。異なる新聞社との比較も可能。またインターネットやテレビはニュースが更新され消えてしまう可能性があるが、新聞は紙なので保存できる。",
+   rubric:"取材に基づく信頼性＋他紙との比較可能性＋紙媒体の保存性",type:"比較"},
+
+  // 2020
+  {id:"20_4",year:2020,theme:"治水事業",qnum:"問4",
+   q:"大河津分水の完成が、分水河口付近と信濃川河口にそれぞれどのような影響を与えたか説明しなさい。",
+   model:"大河津分水ができたことで、分水河口付近に土砂が堆積し海岸線が日本海側へ広がった。一方、信濃川の河口は流量が減り土砂が運ばれなくなったため、侵食を受け海岸線が陸側へ後退した。",
+   rubric:"分水河口：土砂堆積→海岸線拡大、信濃川河口：流量減少→侵食→後退の対比構造",type:"比較"},
+
+  // 2019
+  {id:"19_1",year:2019,theme:"海運・漂流民",qnum:"問1(2)",
+   q:"御前崎から三浦半島にかけての航路が特に危険だった理由を説明しなさい。",
+   model:"航路短縮のため沿岸を離れて航行することが多いので悪天候時の避難が難しく、とくに北西の季節風が強い冬は沖合に流されやすかったから。",
+   rubric:"沿岸離れ→避難困難＋北西季節風→流される、の2要因",type:"因果"},
+
+  // 2018
+  {id:"18_6",year:2018,theme:"銅と国際貿易",qnum:"問6",
+   q:"明治時代の日本にとって、銅・石炭・生糸が輸出に有利だった理由を、綿糸・綿織物と比較して説明しなさい。",
+   model:"綿糸と綿織物は輸入した綿花からつくらなければならないが、銅・石炭・生糸は原料と素材であり自国だけでつくれ利益を得られるという点。",
+   rubric:"綿糸＝原料輸入が必要 vs 銅等＝国内資源で完結の対比",type:"比較"},
+
+  // 2016
+  {id:"16_1",year:2016,theme:"民主政治",qnum:"問1",
+   q:"直接民主制と比べて、代議制（間接民主制）にはどのような長所がありますか。",
+   model:"すべての市民が集会で話すと意見がまとまらず決議が遅れるが、代議制は国民が選んだ代表者が少人数で議論するため意見がまとまりやすくスムーズに進む。また国民は間接的に政治参加できる。",
+   rubric:"直接民主制の問題点（意見不一致・遅延）＋代議制の利点（少人数・効率・間接参加）",type:"比較"},
+  {id:"16_8",year:2016,theme:"民主政治",qnum:"問8",
+   q:"投票率の低下傾向が、日本の憲法の基本原則にとってどのような問題をはらんでいるか説明しなさい。",
+   model:"投票率の低下傾向からは積極的に政治参加しない層の増加が見て取れるが、これは憲法の基本原則の1つである国民主権を形だけのものにしかねない。",
+   rubric:"投票率低下→政治参加の減少→国民主権の形骸化リスク",type:"因果"},
+];
+
+// =============================================
+// State Management
+// =============================================
+let state = {
+  currentQ: null,
+  results: {},   // {id: {score, feedback, timestamp}}
+  apiKey: '',
+  yearFilter: 'all'
+};
+
+function loadState() {
+  try {
+    state.results = JSON.parse(localStorage.getItem('ms_social_results') || '{}');
+    state.apiKey = localStorage.getItem('ms_api_key') || '';
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('ms_social_results', JSON.stringify(state.results));
+  } catch(e) {}
+}
+
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (key) {
+    state.apiKey = key;
+    try { localStorage.setItem('ms_api_key', key); } catch(e) {}
+    document.getElementById('apiSaved').style.display = 'block';
+    document.getElementById('apiKeyInput').value = key.slice(0,12) + '...';
+    setTimeout(() => { document.getElementById('apiSaved').style.display = 'none'; }, 2000);
+  }
+}
+
+// =============================================
+// Screen Management
+// =============================================
+function showScreen(id) {
+  document.querySelectorAll('.scr').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goHome() {
+  showScreen('scrHome');
+  renderHome();
+}
+
+// =============================================
+// Home Screen
+// =============================================
+function renderHome() {
+  const done = Object.keys(state.results).length;
+  const total = QUESTIONS.length;
+  const scores = Object.values(state.results).map(r => r.score).filter(s => s !== undefined);
+  const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : '—';
+
+  document.getElementById('stTotal').textContent = total;
+  document.getElementById('stDone').textContent = done;
+  document.getElementById('stAvg').textContent = avg;
+  document.getElementById('progFill').style.width = (done/total*100) + '%';
+
+  // API key display
+  if (state.apiKey) {
+    document.getElementById('apiKeyInput').value = state.apiKey.slice(0,12) + '...';
+  }
+
+  // Year filter
+  const years = [...new Set(QUESTIONS.map(q => q.year))].sort((a,b)=>b-a);
+  const yf = document.getElementById('yearFilter');
+  yf.innerHTML = `<button class="yf-btn ${state.yearFilter==='all'?'active':''}" onclick="filterYear('all')">全て</button>`;
+  years.forEach(y => {
+    yf.innerHTML += `<button class="yf-btn ${state.yearFilter==y?'active':''}" onclick="filterYear(${y})">${y}</button>`;
+  });
+
+  // Question list
+  const filtered = state.yearFilter === 'all' ? QUESTIONS : QUESTIONS.filter(q => q.year == state.yearFilter);
+  const list = document.getElementById('qList');
+  list.innerHTML = '';
+  filtered.forEach(q => {
+    const r = state.results[q.id];
+    const status = r ? (r.score >= 7 ? '🟢' : r.score >= 4 ? '🟡' : '🔴') : '⚪';
+    const scoreText = r ? `${r.score}/10` : '';
+    const typeLabel = q.type === '因果' ? '因果' : q.type === '比較' ? '比較' : '統合';
+    list.innerHTML += `
+      <div class="q-item" onclick="startQuiz('${q.id}')">
+        <div class="q-year">${q.year}</div>
+        <div class="q-info">
+          <div class="q-title">${q.qnum}：${q.q.slice(0,35)}…</div>
+          <div class="q-meta">${q.theme} ｜ ${typeLabel}型 ${scoreText}</div>
+        </div>
+        <div class="q-status">${status}</div>
+      </div>`;
+  });
+}
+
+function filterYear(y) {
+  state.yearFilter = y;
+  renderHome();
+}
+
+// =============================================
+// Quiz Screen
+// =============================================
+function startQuiz(id) {
+  state.currentQ = QUESTIONS.find(q => q.id === id);
+  if (!state.currentQ) return;
+
+  const q = state.currentQ;
+  document.getElementById('qBadge').textContent = `${q.year}年度 ${q.qnum}`;
+  document.getElementById('qTheme').textContent = `テーマ：${q.theme} ｜ ${q.type}型`;
+  document.getElementById('qText').innerHTML = `<strong>${q.q}</strong>`;
+  document.getElementById('ansArea').value = '';
+  document.getElementById('charNum').textContent = '0';
+  document.getElementById('fbArea').innerHTML = '';
+  document.getElementById('btnGrade').disabled = false;
+
+  showScreen('scrQuiz');
+  document.getElementById('ansArea').focus();
+}
+
+// Character count
+document.addEventListener('input', function(e) {
+  if (e.target.id === 'ansArea') {
+    document.getElementById('charNum').textContent = e.target.value.length;
+  }
+});
+
+// Show model answer
+function showModel() {
+  const q = state.currentQ;
+  if (!q) return;
+  const fb = document.getElementById('fbArea');
+  fb.innerHTML = `
+    <div class="fb-model">
+      <h4>📝 模範解答</h4>
+      <p>${q.model}</p>
+      <div style="margin-top:8px;font-size:0.75rem;color:var(--dim)">
+        <strong>評価基準：</strong>${q.rubric}
+      </div>
+    </div>`;
+}
+
+// =============================================
+// AI Grading
+// =============================================
+async function gradeAnswer() {
+  const q = state.currentQ;
+  const ans = document.getElementById('ansArea').value.trim();
+
+  if (!ans) { alert('解答を入力してください'); return; }
+  if (!state.apiKey) { alert('APIキーを設定してください'); goHome(); return; }
+
+  document.getElementById('btnGrade').disabled = true;
+  document.getElementById('fbArea').innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <div>AI採点中…</div>
+    </div>`;
+
+  const systemPrompt = `あなたは武蔵中学校の社会科採点官です。小学6年生の記述式解答を採点してください。
+
+採点基準：
+- 問題：${q.q}
+- 模範解答：${q.model}
+- 評価基準：${q.rubric}
+- 問題タイプ：${q.type}型
+
+以下のJSON形式で回答してください。他の文字は含めないでください：
+{"score":0〜10の整数,"good":"良い点を1〜2文で","improve":"改善点を1〜2文で具体的に","tip":"次回の解答に向けたアドバイスを1文で"}
+
+採点のポイント：
+- 評価基準に記載された要素がいくつ含まれているかを確認
+- 因果関係語（「〜ため」「〜から」）が使われているか
+- 資料との結びつきが示されているか
+- 自分の言葉で再構成できているか（丸暗記でなく理解）
+- 小学6年生の文章として適切な表現か
+
+10点：全要素を論理的に説明。因果・対比が明確
+7-9点：主要要素を含むが一部不足・不正確
+4-6点：方向性は正しいが要素不足や論理の飛躍
+1-3点：テーマに関連するが要素が大幅に不足
+0点：無関係または白紙`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        messages: [
+          { role: 'user', content: `${systemPrompt}\n\n生徒の解答：\n${ans}` }
+        ]
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      throw new Error(data.error.message || 'API error');
+    }
+
+    const text = data.content[0].text.replace(/```json|```/g, '').trim();
+    const fb = JSON.parse(text);
+
+    // Save result
+    state.results[q.id] = {
+      score: fb.score,
+      feedback: fb,
+      answer: ans,
+      timestamp: Date.now()
+    };
+    saveState();
+
+    // Render feedback
+    const scoreClass = fb.score >= 7 ? 's-high' : fb.score >= 4 ? 's-mid' : 's-low';
+    const scoreLabel = fb.score >= 7 ? '合格レベル' : fb.score >= 4 ? 'あと一歩' : '要復習';
+
+    document.getElementById('fbArea').innerHTML = `
+      <div class="fb-card">
+        <div class="fb-score">
+          <div class="fb-ring ${scoreClass}">${fb.score}</div>
+          <div class="fb-summary">
+            <div class="fb-label">AI採点結果</div>
+            <div class="fb-title">${scoreLabel}（${fb.score}/10点）</div>
+          </div>
+        </div>
+        <div class="fb-section">
+          <h4>✅ 良い点</h4>
+          <p>${fb.good}</p>
+        </div>
+        <div class="fb-section">
+          <h4>📝 改善点</h4>
+          <p>${fb.improve}</p>
+        </div>
+        <div class="fb-section">
+          <h4>💡 次回のヒント</h4>
+          <p>${fb.tip}</p>
+        </div>
+        <div class="fb-model" style="margin-top:16px">
+          <h4>📖 模範解答</h4>
+          <p>${q.model}</p>
+          <div style="margin-top:6px;font-size:0.7rem;color:var(--dim)"><strong>基準：</strong>${q.rubric}</div>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-secondary" onclick="startQuiz('${q.id}')">もう一度</button>
+        <button class="btn btn-primary" onclick="goHome()">問題一覧へ</button>
+      </div>`;
+
+    // Update progress
+    const done = Object.keys(state.results).length;
+    document.getElementById('progFill').style.width = (done/QUESTIONS.length*100) + '%';
+
+  } catch (err) {
+    document.getElementById('fbArea').innerHTML = `
+      <div class="fb-card" style="border-color:var(--red)">
+        <p style="color:var(--red);font-weight:700">⚠️ AI採点エラー</p>
+        <p style="color:var(--dim);font-size:0.8rem;margin-top:8px">${err.message}</p>
+        <p style="color:var(--dim);font-size:0.75rem;margin-top:8px">APIキーを確認してください。模範解答は「模範解答を見る」ボタンで確認できます。</p>
+      </div>`;
+    document.getElementById('btnGrade').disabled = false;
+  }
+}
+
+// =============================================
+// Speech Input (Web Speech API)
+// =============================================
+let recognition = null;
+let isRecording = false;
+
+function initSpeech() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    // Speech API not supported
+    const mic = document.getElementById('btnMic');
+    if (mic) { mic.style.display = 'none'; }
+    const hint = document.getElementById('speechHint');
+    if (hint) { hint.textContent = '⚠️ このブラウザは音声入力に対応していません'; }
+    return;
+  }
+
+  recognition = new SR();
+  recognition.lang = 'ja-JP';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  let finalTranscript = '';
+
+  recognition.onstart = function() {
+    isRecording = true;
+    document.getElementById('btnMic').classList.add('recording');
+    document.getElementById('speechStatus').textContent = '🔴 音声を聞いています…';
+    document.getElementById('speechStatus').classList.add('active');
+    document.getElementById('speechHint').style.display = 'none';
+  };
+
+  recognition.onresult = function(event) {
+    let interim = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalTranscript += t;
+      } else {
+        interim = t;
+      }
+    }
+    const area = document.getElementById('ansArea');
+    // Preserve existing text (typed before speech)
+    const base = area.dataset.preText || '';
+    area.value = base + finalTranscript + (interim ? interim : '');
+    document.getElementById('charNum').textContent = area.value.length;
+
+    // Show interim in status
+    if (interim) {
+      document.getElementById('speechStatus').textContent = '🔴 ' + interim;
+    }
+  };
+
+  recognition.onerror = function(event) {
+    if (event.error === 'no-speech') {
+      document.getElementById('speechStatus').textContent = '声が聞こえませんでした。もう一度お試しください';
+    } else if (event.error === 'not-allowed') {
+      document.getElementById('speechStatus').textContent = '⚠️ マイクの使用が許可されていません。設定を確認してください';
+    } else {
+      document.getElementById('speechStatus').textContent = '⚠️ エラー: ' + event.error;
+    }
+    document.getElementById('speechStatus').classList.remove('active');
+    stopRecording();
+  };
+
+  recognition.onend = function() {
+    if (isRecording) {
+      // Auto-restart if still in recording mode (handles Safari timeout)
+      try { recognition.start(); } catch(e) { stopRecording(); }
+    }
+  };
+}
+
+function toggleSpeech() {
+  if (!recognition) {
+    alert('このブラウザは音声入力に対応していません。\nSafari または Chrome をお使いください。');
+    return;
+  }
+
+  if (isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+function startRecording() {
+  const area = document.getElementById('ansArea');
+  // Save current text as base
+  area.dataset.preText = area.value;
+
+  try {
+    recognition.start();
+  } catch(e) {
+    // Already running, restart
+    recognition.stop();
+    setTimeout(() => {
+      area.dataset.preText = area.value;
+      recognition.start();
+    }, 200);
+  }
+}
+
+function stopRecording() {
+  isRecording = false;
+  try { recognition.stop(); } catch(e) {}
+  document.getElementById('btnMic').classList.remove('recording');
+  const area = document.getElementById('ansArea');
+  const charCount = area.value.length;
+  document.getElementById('speechStatus').textContent = charCount > 0 ? `✅ ${charCount}字入力済み。続けて音声入力 or 手入力で編集できます` : '';
+  document.getElementById('speechStatus').classList.remove('active');
+  // Clean up
+  delete area.dataset.preText;
+}
+
+// Reset speech state when starting a new quiz
+const origStartQuiz = startQuiz;
+startQuiz = function(id) {
+  if (isRecording) stopRecording();
+  origStartQuiz(id);
+  document.getElementById('speechHint').style.display = 'flex';
+  document.getElementById('speechStatus').textContent = '';
+};
+
+// =============================================
+// Init
+// =============================================
+loadState();
+initSpeech();
+renderHome();
+</script>
+</body>
+</html>
