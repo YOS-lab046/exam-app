@@ -628,9 +628,10 @@ function initSpeech() {
   };
 
   recognition.onend = function() {
+    // Don't auto-restart (Safari asks permission each time)
+    // Instead, just clean up
     if (isRecording) {
-      // Auto-restart if still in recording mode (handles Safari timeout)
-      try { recognition.start(); } catch(e) { stopRecording(); }
+      stopRecording();
     }
   };
 }
@@ -650,18 +651,13 @@ function toggleSpeech() {
 
 function startRecording() {
   const area = document.getElementById('ansArea');
-  // Save current text as base
   area.dataset.preText = area.value;
 
   try {
     recognition.start();
   } catch(e) {
-    // Already running, restart
-    recognition.stop();
-    setTimeout(() => {
-      area.dataset.preText = area.value;
-      recognition.start();
-    }, 200);
+    // Already running
+    document.getElementById('speechStatus').textContent = '⚠️ もう一度マイクボタンを押してください';
   }
 }
 
@@ -671,7 +667,7 @@ function stopRecording() {
   document.getElementById('btnMic').classList.remove('recording');
   const area = document.getElementById('ansArea');
   const charCount = area.value.length;
-  document.getElementById('speechStatus').textContent = charCount > 0 ? `✅ ${charCount}字入力済み。続けて音声入力 or 手入力で編集できます` : '';
+  document.getElementById('speechStatus').textContent = charCount > 0 ? `✅ ${charCount}字入力済み。続きを話すにはもう一度🎤を押してください` : '';
   document.getElementById('speechStatus').classList.remove('active');
   // Clean up
   delete area.dataset.preText;
